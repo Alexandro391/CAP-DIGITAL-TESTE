@@ -6,7 +6,7 @@
    o painel mostraria chamados desatualizados.
    ═══════════════════════════════════════════════════════════ */
 
-const CACHE_VERSION = '2026-07-10-3'; // troque essa data ao publicar uma nova versão do painel
+const CACHE_VERSION = '2026-07-10-4'; // troque essa data ao publicar uma nova versão do painel
 const CACHE_NAME = 'pmc-shell-' + CACHE_VERSION;
 
 const APP_SHELL = [
