@@ -252,6 +252,7 @@
       </div>
     </div>
     <span class="live-dot" id="liveDot"></span>
+    <div class="icon-btn" id="btnAtualizar" title="Forçar atualização" onclick="forcarAtualizacao()">🔄</div>
     <div class="icon-btn" id="btnFull" title="Tela cheia (desktop/TV)">⛶</div>
     <div class="icon-btn" id="btnWake" title="Manter tela ativa">📱</div>
     <div class="icon-btn" id="btnSom" title="Som">🔊</div>
@@ -740,9 +741,11 @@ document.addEventListener('visibilitychange', () => {
 });
 
 /* ── SERVICE WORKER (instalação como app / PWA) ── */
+let swReg = null;
 if('serviceWorker' in navigator){
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw-pmc.js').then(reg => {
+      swReg = reg;
       reg.update();
       reg.addEventListener('updatefound', () => {
         const nova = reg.installing;
@@ -752,6 +755,22 @@ if('serviceWorker' in navigator){
       });
     }).catch(err => console.warn('SW erro:', err));
   });
+
+  // Reforço: aparelhos que ficam com o app aberto/em 2º plano por muito
+  // tempo (sem recarregar a página) podem não perceber sozinhos que existe
+  // uma versão nova publicada. Checa de novo a cada 5 minutos e sempre que
+  // o app volta a ficar visível.
+  setInterval(() => { if(swReg) swReg.update(); }, 5 * 60 * 1000);
+  document.addEventListener('visibilitychange', () => {
+    if(document.visibilityState === 'visible' && swReg) swReg.update();
+  });
+}
+
+/* Botão manual — força checar atualização e recarregar, útil quando um
+   aparelho parece "atrasado" em relação aos outros. */
+function forcarAtualizacao(){
+  if(swReg){ swReg.update(); }
+  location.reload();
 }
 </script>
 </body>
