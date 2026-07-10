@@ -1,0 +1,2231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#2d6e65">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CAP Digital">
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>CAP Digital · FMC</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+
+<style>
+/* ───────────────────────────────────────────────────────────
+   NOVA PALETA — mais elegante, com toques de sofisticação
+   ─────────────────────────────────────────────────────────── */
+:root {
+  --primary:      #2d6e65;
+  --primary-l:    #3e8f84;
+  --primary-d:    #1e524a;
+  --primary-xl:   #e9f3f1;
+  --primary-xxl:  #f4f9f8;
+  --white:        #ffffff;
+  --surface:      #f6faf9;
+  --surface2:     #edf4f2;
+  --text:         #0f1e1c;
+  --text-2:       #1a2f2c;
+  --text-3:       #5f7d78;
+  --border:       #cde0db;
+  --border-2:     #aecac4;
+  --error:        #b53b2e;
+  --warn:         #c27a1a;
+  --shadow-sm:    0 2px 8px rgba(30,82,74,0.06);
+  --shadow-md:    0 6px 24px rgba(30,82,74,0.10);
+  --shadow-lg:    0 12px 48px rgba(30,82,74,0.14);
+  --radius:       14px;
+  --radius-sm:    10px;
+  --radius-lg:    20px;
+  --transition:   0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--surface);
+  min-height: 100vh;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 80px 0;
+  position: relative;
+}
+
+/* sutileza no fundo */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 70% 20%, rgba(45,110,101,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(45,110,101,0.03) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  width: 100%;
+  background: var(--primary-d);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  box-shadow: 0 2px 16px rgba(30,82,74,0.18);
+  backdrop-filter: blur(2px);
+}
+
+.top-bar-inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.fmc-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.fmc-logo-mark {
+  font-family: 'Inter', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.fmc-logo-mark span {
+  color: rgba(255,255,255,0.4);
+  font-weight: 300;
+}
+
+.fmc-divider {
+  width: 1px;
+  height: 26px;
+  background: rgba(255,255,255,0.15);
+  flex-shrink: 0;
+}
+
+.fmc-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.fmc-name-inst {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  color: rgba(255,255,255,0.92);
+  line-height: 1.2;
+}
+
+.fmc-name-dept {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.3px;
+  line-height: 1.3;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 30px;
+  padding: 6px 16px 6px 12px;
+  flex-shrink: 0;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #5ce0a0;
+  animation: pulse-dot 2.8s infinite;
+  box-shadow: 0 0 0 0 rgba(92,224,160,0.3);
+}
+
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(92,224,160,0.3); }
+  60%  { box-shadow: 0 0 0 6px rgba(92,224,160,0); }
+  100% { box-shadow: 0 0 0 0 rgba(92,224,160,0); }
+}
+
+.status-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: rgba(255,255,255,0.8);
+  text-transform: uppercase;
+}
+
+/* ── HERO ── */
+.hero {
+  width: 100%;
+  max-width: 720px;
+  padding: 32px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeDown 0.5s ease both;
+}
+
+.hero-card {
+  background: linear-gradient(145deg, var(--primary), var(--primary-d));
+  border-radius: var(--radius-lg);
+  padding: 22px 28px 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(30,82,74,0.18);
+}
+
+.hero-card::after {
+  content: 'CAP';
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-family: 'Inter', serif;
+  font-size: 56px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.05);
+  line-height: 1;
+  pointer-events: none;
+  letter-spacing: -2px;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 2.8px;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.hero-title {
+  font-family: 'Inter', serif;
+  font-size: 30px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.hero-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.65);
+  letter-spacing: 0.2px;
+  margin-top: 2px;
+}
+
+/* ── STEP INDICATOR ── */
+.steps-wrap {
+  width: 100%;
+  max-width: 720px;
+  padding: 24px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeDown 0.6s ease 0.05s both;
+}
+
+.steps-track {
+  display: flex;
+  gap: 0;
+  position: relative;
+  justify-content: space-between;
+}
+
+.step-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.step-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 16px;
+  left: calc(50% + 20px);
+  right: calc(-50% + 20px);
+  height: 2.5px;
+  background: var(--border);
+  transition: background 0.4s;
+  z-index: 0;
+  border-radius: 4px;
+}
+
+.step-item.done:not(:last-child)::after,
+.step-item.active:not(:last-child)::after {
+  background: var(--primary-l);
+}
+
+.step-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--white);
+  border: 2.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-3);
+  transition: all 0.3s;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+}
+
+.step-item.done .step-circle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(45,110,101,0.25);
+}
+
+.step-item.active .step-circle {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 0 0 6px rgba(45,110,101,0.12);
+}
+
+.step-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-top: 8px;
+  transition: color 0.3s;
+}
+
+.step-item.active .step-label { color: var(--primary); }
+.step-item.done .step-label { color: var(--primary-d); }
+
+/* ── FORM CARD ── */
+.form-card {
+  width: 100%;
+  max-width: 720px;
+  padding: 20px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeUp 0.5s ease 0.1s both;
+}
+
+/* SECTION */
+.section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 32px 28px;
+  margin-bottom: 16px;
+  display: none;
+  box-shadow: var(--shadow-sm);
+  animation: fadeUp 0.35s ease both;
+  transition: box-shadow 0.3s;
+}
+
+.section.active { display: block; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+  padding-bottom: 18px;
+  border-bottom: 1.5px solid var(--border);
+}
+
+.section-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--primary-xl);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title .icon { font-size: 16px; }
+
+/* FIELD */
+.field { margin-bottom: 24px; }
+.field:last-of-type { margin-bottom: 0; }
+
+.field-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.9px;
+  color: var(--text-2);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.field-label .req {
+  color: var(--error);
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* INPUT */
+input[type="text"],
+input[type="tel"],
+textarea {
+  width: 100%;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+  resize: none;
+}
+
+input[type="text"]:focus,
+input[type="tel"]:focus,
+textarea:focus {
+  border-color: var(--primary);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(45,110,101,0.08);
+}
+
+input::placeholder, textarea::placeholder {
+  color: var(--text-3);
+  font-weight: 400;
+  opacity: 0.75;
+}
+
+.helper {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-top: 6px;
+  font-weight: 400;
+}
+
+/* SALA BADGE (QR) */
+.sala-badge {
+  background: var(--primary-xl);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sala-value {
+  font-family: 'Inter', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary-d);
+  letter-spacing: 0.5px;
+}
+
+.sala-tag {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  color: var(--primary);
+  text-transform: uppercase;
+  background: rgba(45,110,101,0.10);
+  border-radius: 30px;
+  padding: 4px 14px;
+}
+
+/* AUTOCOMPLETE de sala */
+.sala-autocomplete-wrap {
+  position: relative;
+}
+
+.sala-autocomplete-wrap input {
+  padding-left: 46px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.sala-autocomplete-wrap input:focus {
+  border-color: var(--primary);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(45,110,101,0.08);
+}
+
+.sala-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  pointer-events: none;
+  opacity: 0.5;
+  z-index: 1;
+}
+
+.sala-confirmed-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--primary);
+  font-family: 'Inter', sans-serif;
+  pointer-events: none;
+  z-index: 1;
+  display: none;
+}
+
+.sala-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.sala-dropdown.open { display: block; }
+
+.sala-dropdown-item {
+  padding: 12px 18px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  transition: background 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--surface);
+}
+
+.sala-dropdown-item:last-child { border-bottom: none; }
+
+.sala-dropdown-item:hover,
+.sala-dropdown-item.highlighted {
+  background: var(--primary-xl);
+  color: var(--primary-d);
+}
+
+.sala-dropdown-item .sala-tag-tipo {
+  font-size: 10px;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--primary);
+  background: var(--primary-xl);
+  border-radius: 6px;
+  padding: 2px 10px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.sala-no-results {
+  padding: 18px;
+  font-size: 13px;
+  color: var(--text-3);
+  text-align: center;
+}
+
+/* CATEGORY CARDS */
+.cat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .cat-grid { grid-template-columns: 1fr; }
+}
+
+.cat-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.2s;
+  user-select: none;
+  position: relative;
+}
+
+.cat-card:hover {
+  border-color: var(--primary-l);
+  background: var(--primary-xxl);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.cat-card.selected {
+  border-color: var(--primary);
+  background: var(--primary-xl);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.cat-card input[type="radio"] { display: none; }
+
+.cat-icon { font-size: 20px; flex-shrink: 0; }
+
+.cat-info { flex: 1; min-width: 0; }
+
+.cat-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-desc {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cat-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.cat-card.selected .cat-check {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.cat-card.selected .cat-check::after {
+  content: '✓';
+  font-size: 11px;
+  color: #fff;
+  font-weight: 700;
+}
+
+/* URGENCY */
+.urgency-row {
+  display: flex;
+  gap: 12px;
+}
+
+.urg-btn {
+  flex: 1;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.urg-btn:hover {
+  border-color: var(--border-2);
+  background: var(--white);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.urg-btn.selected-alta {
+  border-color: #b53b2e;
+  background: #fdf1ef;
+  box-shadow: 0 0 0 1px #b53b2e;
+}
+
+.urg-btn.selected-media {
+  border-color: #c27a1a;
+  background: #fdf6ed;
+  box-shadow: 0 0 0 1px #c27a1a;
+}
+
+.urg-btn.selected-baixa {
+  border-color: var(--primary);
+  background: var(--primary-xl);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.urg-icon { font-size: 24px; }
+
+.urg-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+
+.urg-desc {
+  font-size: 10px;
+  color: var(--text-3);
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* TIPO GRID */
+.tipo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 480px) {
+  .tipo-grid { grid-template-columns: 1fr 1fr; }
+}
+
+.tipo-btn {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.tipo-btn:hover {
+  background: var(--primary-xxl);
+  border-color: var(--primary-l);
+  transform: translateY(-1px);
+}
+
+.tipo-btn.selected {
+  border-color: var(--primary);
+  background: var(--primary-xl);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+.tipo-icon { font-size: 22px; }
+
+.tipo-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: var(--text-2);
+  text-align: center;
+}
+
+.tipo-btn.selected .tipo-label { color: var(--primary-d); }
+
+/* OTHER INPUT */
+.other-input {
+  margin-top: 12px;
+  display: none;
+}
+
+.other-input.show { display: block; }
+
+/* RESUMO */
+.resumo-card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.resumo-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.resumo-key {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  flex-shrink: 0;
+  width: 90px;
+}
+
+.resumo-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.resumo-proto {
+  font-family: 'Inter', serif;
+  color: var(--primary-d);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+/* LGPD CHECK */
+.lgpd-check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-top: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.lgpd-check-row:hover {
+  border-color: var(--primary-l);
+  background: var(--primary-xxl);
+}
+
+.lgpd-check-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.lgpd-check-row label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-2);
+  line-height: 1.6;
+  cursor: pointer;
+}
+
+.lgpd-check-row label a {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* NAV BUTTONS */
+.nav-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.btn-back {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 24px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+
+.btn-back:hover {
+  border-color: var(--border-2);
+  color: var(--text);
+  background: var(--surface);
+  transform: translateY(-1px);
+}
+
+.btn-next {
+  flex: 1;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 15px 28px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(45,110,101,0.25);
+  letter-spacing: 0.2px;
+}
+
+.btn-next:hover {
+  background: var(--primary-d);
+  box-shadow: 0 6px 20px rgba(45,110,101,0.35);
+  transform: translateY(-2px);
+}
+
+.btn-next:active { transform: translateY(0); }
+
+.btn-submit {
+  flex: 1;
+  background: var(--primary-d);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 16px 28px;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(30,82,74,0.3);
+  letter-spacing: 0.2px;
+}
+
+.btn-submit:hover {
+  background: #15443d;
+  box-shadow: 0 6px 24px rgba(30,82,74,0.4);
+  transform: translateY(-2px);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ── FIELD ERRORS ── */
+.field-error {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: rgba(181,59,46,0.06);
+  border: 1px solid rgba(181,59,46,0.2);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--error);
+  letter-spacing: 0.2px;
+  animation: errorShake 0.35s ease both;
+}
+
+.field-error.show { display: flex; }
+.field-error-icon { font-size: 14px; flex-shrink: 0; }
+
+@keyframes errorShake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-4px); }
+  40%  { transform: translateX(4px); }
+  60%  { transform: translateX(-3px); }
+  80%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+
+.field.has-error input,
+.field.has-error textarea {
+  border-color: rgba(181,59,46,0.5) !important;
+  box-shadow: 0 0 0 4px rgba(181,59,46,0.06) !important;
+}
+
+.field.has-error .cat-grid,
+.field.has-error .urgency-row,
+.field.has-error .tipo-grid,
+.field.has-error .lgpd-check-row {
+  border-radius: 10px;
+  outline: 1.5px solid rgba(181,59,46,0.3);
+  outline-offset: 2px;
+}
+
+/* ── SUCCESS SCREEN ── */
+#success {
+  display: none;
+  width: 100%;
+  max-width: 720px;
+  padding: 20px 24px 0;
+  position: relative;
+  z-index: 10;
+  animation: fadeUp 0.5s ease both;
+}
+
+.success-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 56px 36px 40px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.success-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 5px;
+  background: linear-gradient(90deg, var(--primary-d), var(--primary), var(--primary-l));
+}
+
+.success-icon-wrap {
+  width: 80px;
+  height: 80px;
+  background: var(--primary-xl);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.success-icon-wrap svg {
+  width: 40px;
+  height: 40px;
+}
+
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.success-title {
+  font-family: 'Inter', serif;
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--primary-d);
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+
+.success-msg {
+  font-size: 14px;
+  color: var(--text-3);
+  margin-bottom: 30px;
+  line-height: 1.7;
+}
+
+.protocolo-badge {
+  background: var(--primary-xl);
+  border: 1.5px solid var(--border-2);
+  border-radius: var(--radius-sm);
+  padding: 18px 22px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+  text-align: left;
+}
+
+.protocolo-icon { font-size: 24px; }
+
+.protocolo-info { flex: 1; }
+
+.protocolo-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.protocolo-number {
+  font-family: 'Inter', serif;
+  font-size: 22px;
+  color: var(--primary-d);
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.protocolo-copy {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary);
+  transition: all 0.2s;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+
+.protocolo-copy:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+
+.success-info {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.success-info-icon { font-size: 18px; flex-shrink: 0; }
+
+.success-info-text {
+  font-size: 12px;
+  color: var(--text-3);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+.success-info-text strong {
+  color: var(--text);
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.btn-novo {
+  margin-top: 24px;
+  width: 100%;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-novo:hover {
+  border-color: var(--primary-l);
+  color: var(--primary);
+  background: var(--primary-xxl);
+}
+
+/* ── LGPD BAR ── */
+.lgpd-bar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--white);
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 200;
+  animation: slideUp 0.4s ease both;
+  box-shadow: 0 -4px 24px rgba(30,82,74,0.08);
+}
+
+.lgpd-bar.hidden { display: none; }
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.lgpd-icon { font-size: 20px; flex-shrink: 0; }
+
+.lgpd-text {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-2);
+  line-height: 1.6;
+}
+
+.lgpd-text a {
+  color: var(--primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.lgpd-btn-ok {
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 10px 22px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.lgpd-btn-ok:hover { background: var(--primary-d); }
+
+/* LGPD Modal */
+.lgpd-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(15,30,28,0.5);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.lgpd-overlay.open { display: flex; }
+
+.lgpd-modal {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  max-width: 580px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 36px 32px;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+}
+
+.lgpd-modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary-d), var(--primary), var(--primary-l));
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.lgpd-modal-title {
+  font-family: 'Inter', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--primary-d);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lgpd-modal h3 {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--primary);
+  margin: 20px 0 8px;
+}
+
+.lgpd-modal p {
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.8;
+}
+
+.lgpd-modal ul {
+  margin: 6px 0 0 20px;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.8;
+}
+
+.lgpd-close {
+  margin-top: 28px;
+  width: 100%;
+  background: var(--primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 15px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  transition: background 0.2s;
+}
+
+.lgpd-close:hover { background: var(--primary-d); }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── INTRO LEGEND ── */
+.intro-legend {
+  padding: 22px 0 12px;
+  border-bottom: 1.5px solid var(--border);
+  margin-bottom: 20px;
+}
+
+.intro-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  color: var(--white);
+  background: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px 4px 10px;
+  border-radius: 30px;
+  margin-bottom: 10px;
+}
+
+.intro-icon { font-size: 10px; opacity: 0.85; }
+
+.intro-title {
+  font-family: 'Inter', serif;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+
+.intro-title-green {
+  color: var(--primary);
+}
+
+.intro-desc {
+  font-size: 14px;
+  color: var(--text-3);
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* ── FOOTER TAG ── */
+.footer-tag {
+  width: 100%;
+  max-width: 720px;
+  padding: 24px 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 10;
+}
+
+.footer-tag-text {
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.footer-dot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--border-2);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 480px) {
+  body { padding-bottom: 60px; }
+
+  .top-bar-inner { padding: 0 16px; height: 56px; gap: 10px; }
+  .fmc-logo-mark { font-size: 20px; }
+  .fmc-name-inst { font-size: 11px; }
+  .fmc-name-dept { display: none; }
+
+  .hero { padding: 20px 16px 0; }
+  .hero-card { padding: 20px 20px 18px; }
+  .hero-title { font-size: 26px; }
+  .hero-card::after { font-size: 48px; right: 12px; }
+
+  .steps-wrap { padding: 16px 16px 0; }
+  .form-card { padding: 14px 16px 0; }
+  .section { padding: 22px 18px 20px; }
+
+  .cat-name { font-size: 13px; }
+  .tipo-btn { padding: 14px 8px; }
+
+  .urgency-row { gap: 8px; }
+  .urg-btn { padding: 14px 8px; }
+  .urg-icon { font-size: 20px; }
+  .urg-label { font-size: 10px; }
+  .urg-desc { font-size: 9px; }
+
+  .btn-next, .btn-submit { font-size: 14px; padding: 14px 16px; }
+  .btn-back { padding: 12px 16px; font-size: 13px; }
+
+  .success-card { padding: 40px 20px 30px; }
+  .success-title { font-size: 26px; }
+  #success { padding: 14px 16px 0; }
+
+  .footer-tag { padding: 16px 16px 0; }
+}
+
+@media (max-width: 360px) {
+  .urgency-row { flex-direction: column; }
+  .urg-btn { flex-direction: row; gap: 12px; justify-content: flex-start; padding: 14px 16px; }
+  .urg-desc { text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="top-bar">
+  <div class="top-bar-inner">
+    <div class="fmc-logo">
+      <div class="fmc-logo-mark"><span>.</span>fmc</div>
+    </div>
+    <div class="fmc-divider"></div>
+    <div class="fmc-name">
+      <div class="fmc-name-inst">Faculdade de Medicina de Campos</div>
+      <div class="fmc-name-dept">Central de Apoio Pedagógico</div>
+    </div>
+    <div class="status-chip">
+      <div class="status-dot"></div>
+      <span class="status-label">Online</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-card">
+    <div class="hero-eyebrow">· Sistema de Atendimento ·</div>
+    <div class="hero-title">CAP Digital</div>
+    <div class="hero-subtitle">Preencha · Envie · Aguarde o atendimento</div>
+  </div>
+</div>
+
+<!-- ── STEP INDICATOR ── -->
+<div class="steps-wrap" id="stepsWrap">
+  <div class="steps-track">
+    <div class="step-item active" id="stepItem0">
+      <div class="step-circle" id="seg0">1</div>
+      <span class="step-label" id="sname0">Local</span>
+    </div>
+    <div class="step-item" id="stepItem1">
+      <div class="step-circle" id="seg1">2</div>
+      <span class="step-label" id="sname1">Problema</span>
+    </div>
+    <div class="step-item" id="stepItem2">
+      <div class="step-circle" id="seg2">3</div>
+      <span class="step-label" id="sname2">Solicitante</span>
+    </div>
+  </div>
+</div>
+
+<!-- ── FORM ── -->
+<div class="form-card">
+
+  <!-- INTRO LEGEND -->
+  <div class="intro-legend">
+    <div class="intro-eyebrow"><span class="intro-icon">✦</span> Suporte Técnico</div>
+    <div class="intro-title">Abrir <span class="intro-title-green">Chamado</span></div>
+    <div class="intro-desc">Preencha as informações abaixo para registrar sua solicitação. Nossa equipe será notificada imediatamente.</div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="section active" id="step0">
+    <div class="section-header">
+      <div class="section-badge">01</div>
+      <div class="section-title"><span class="icon">📍</span> Local / Sala</div>
+    </div>
+
+    <div class="field" id="fieldSala">
+      <div class="field-label">Sala <span class="req">*</span></div>
+      <div class="sala-badge" id="salaBadgeWrap">
+        <div class="sala-value" id="salaDisplay">—</div>
+        <div class="sala-tag" id="salaBadge">✓ Pré-preenchido</div>
+      </div>
+      <input type="hidden" id="sala" value="">
+      <div class="helper" id="salaHelper">Sala identificada automaticamente pelo QR Code</div>
+      <div class="field-error" id="errSala"><span class="field-error-icon">⚠️</span> Selecione uma sala da lista.</div>
+    </div>
+
+    <div class="field" id="fieldCat">
+      <div class="field-label">Categoria do Chamado <span class="req">*</span></div>
+      <div class="cat-grid" id="catGrid">
+        <label class="cat-card" onclick="selectCat(this,'Projetor / Data Show')">
+          <input type="radio" name="categoria" value="Projetor / Data Show">
+          <span class="cat-icon">📽️</span>
+          <div class="cat-info">
+            <div class="cat-name">Projetor / TV</div>
+            <div class="cat-desc">Data Show / HDMI</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Computador / Login / Sistema')">
+          <input type="radio" name="categoria" value="Computador / Login / Sistema">
+          <span class="cat-icon">💻</span>
+          <div class="cat-info">
+            <div class="cat-name">Computador</div>
+            <div class="cat-desc">Login / Sistema</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Suporte Pedagógico')">
+          <input type="radio" name="categoria" value="Suporte Pedagógico">
+          <span class="cat-icon">📚</span>
+          <div class="cat-info">
+            <div class="cat-name">Suporte Pedagógico</div>
+            <div class="cat-desc">Dúvidas / Materiais</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Ar-condicionado / Climatização')">
+          <input type="radio" name="categoria" value="Ar-condicionado / Climatização">
+          <span class="cat-icon">❄️</span>
+          <div class="cat-info">
+            <div class="cat-name">Ar-condicionado</div>
+            <div class="cat-desc">Climatização</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Som / Microfone / Áudio')">
+          <input type="radio" name="categoria" value="Som / Microfone / Áudio">
+          <span class="cat-icon">🎤</span>
+          <div class="cat-info">
+            <div class="cat-name">Som / Áudio</div>
+            <div class="cat-desc">Caixa / Microfone</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Iluminação / Energia')">
+          <input type="radio" name="categoria" value="Iluminação / Energia">
+          <span class="cat-icon">💡</span>
+          <div class="cat-info">
+            <div class="cat-name">Iluminação</div>
+            <div class="cat-desc">Energia / Luz</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Caneta / Apagador')">
+          <input type="radio" name="categoria" value="Caneta / Apagador">
+          <span class="cat-icon">✏️</span>
+          <div class="cat-info">
+            <div class="cat-name">Caneta / Apagador</div>
+            <div class="cat-desc">Material de quadro</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Infraestrutura')">
+          <input type="radio" name="categoria" value="Infraestrutura">
+          <span class="cat-icon">🪑</span>
+          <div class="cat-info">
+            <div class="cat-name">Infraestrutura</div>
+            <div class="cat-desc">Mobiliário da sala</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card" onclick="selectCat(this,'Outro')">
+          <input type="radio" name="categoria" value="Outro">
+          <span class="cat-icon">🔧</span>
+          <div class="cat-info">
+            <div class="cat-name">Outros</div>
+            <div class="cat-desc">Especificar abaixo</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+      </div>
+      <div class="other-input" id="otherInput">
+        <input type="text" id="outroTexto" placeholder="Descreva a categoria do problema..." maxlength="120">
+      </div>
+      <div class="field-error" id="errCat"><span class="field-error-icon">⚠️</span> Selecione a categoria do chamado.</div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-next" onclick="nextStep(1)">Próximo <span>→</span></button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="section" id="step1">
+    <div class="section-header">
+      <div class="section-badge">02</div>
+      <div class="section-title"><span class="icon">⚡</span> Detalhes do Problema</div>
+    </div>
+
+    <div class="field" id="fieldUrg">
+      <div class="field-label">Nível de Urgência <span class="req">*</span></div>
+      <div class="urgency-row">
+        <div class="urg-btn" onclick="selectUrg(this,'Alta')">
+          <span class="urg-icon">🔴</span>
+          <span class="urg-label">Alta</span>
+          <span class="urg-desc">Aula / evento parado</span>
+        </div>
+        <div class="urg-btn" onclick="selectUrg(this,'Média')">
+          <span class="urg-icon">🟡</span>
+          <span class="urg-label">Média</span>
+          <span class="urg-desc">Atender assim que possível</span>
+        </div>
+        <div class="urg-btn" onclick="selectUrg(this,'Baixa')">
+          <span class="urg-icon">🟢</span>
+          <span class="urg-label">Baixa</span>
+          <span class="urg-desc">Pode aguardar disponibilidade</span>
+        </div>
+      </div>
+      <div class="field-error" id="errUrg"><span class="field-error-icon">⚠️</span> Selecione o nível de urgência.</div>
+    </div>
+
+    <div class="field" id="fieldDesc">
+      <div class="field-label">Descreva o Problema <span class="req">*</span></div>
+      <textarea id="descricao" rows="4" placeholder="Ex: Projetor não exibe imagem mesmo com HDMI conectado. Tentei reiniciar e não resolveu..." maxlength="800"></textarea>
+      <div class="helper">Seja breve e objetivo. Isso agiliza o atendimento.</div>
+      <div class="field-error" id="errDesc"><span class="field-error-icon">⚠️</span> Descreva o problema brevemente.</div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="nextStep(0)">← Voltar</button>
+      <button class="btn-next" onclick="nextStep(2)">Próximo →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="section" id="step2">
+    <div class="section-header">
+      <div class="section-badge">03</div>
+      <div class="section-title"><span class="icon">👤</span> Identificação</div>
+    </div>
+
+    <div class="field" id="fieldNome">
+      <div class="field-label">Seu Nome <span class="req">*</span></div>
+      <input type="text" id="nome" placeholder="Prof. João Silva / Funcionário Maria Santos" maxlength="100" autocomplete="name">
+      <div class="field-error" id="errNome"><span class="field-error-icon">⚠️</span> Informe seu nome completo.</div>
+    </div>
+
+    <div class="field" id="fieldTipo">
+      <div class="field-label">Tipo de Solicitante <span class="req">*</span></div>
+      <div class="tipo-grid" id="tipoGrid">
+        <div class="tipo-btn" onclick="selectTipo(this,'Professor')">
+          <span class="tipo-icon">🎓</span>
+          <span class="tipo-label">Professor</span>
+        </div>
+        <div class="tipo-btn" onclick="selectTipo(this,'Aluno')">
+          <span class="tipo-icon">📚</span>
+          <span class="tipo-label">Aluno</span>
+        </div>
+        <div class="tipo-btn" onclick="selectTipo(this,'Funcionário')">
+          <span class="tipo-icon">🏢</span>
+          <span class="tipo-label">Funcionário</span>
+        </div>
+        <div class="tipo-btn" onclick="selectTipo(this,'Visitante')">
+          <span class="tipo-icon">👤</span>
+          <span class="tipo-label">Visitante</span>
+        </div>
+      </div>
+      <div class="field-error" id="errTipo"><span class="field-error-icon">⚠️</span> Selecione o tipo de solicitante.</div>
+    </div>
+
+    <div class="field" id="fieldTel">
+      <div class="field-label">Telefone / WhatsApp <span class="req">*</span></div>
+      <input type="tel" id="telefone" placeholder="(22) 99999-9999" maxlength="20" autocomplete="tel">
+      <div class="helper">Necessário para receber atualizações sobre o seu chamado.</div>
+      <div class="field-error" id="errTel"><span class="field-error-icon">⚠️</span> Informe um telefone válido com DDD.</div>
+    </div>
+
+    <!-- Resumo -->
+    <div class="field" style="margin-top:4px;">
+      <div class="field-label">Resumo do Chamado</div>
+      <div class="resumo-card">
+        <div class="resumo-row">
+          <span class="resumo-key">Protocolo</span>
+          <span class="resumo-val resumo-proto" id="resumoProtocolo">—</span>
+        </div>
+        <div class="resumo-row">
+          <span class="resumo-key">Sala</span>
+          <span class="resumo-val" id="resumoSala">—</span>
+        </div>
+        <div class="resumo-row">
+          <span class="resumo-key">Categoria</span>
+          <span class="resumo-val" id="resumoCat">—</span>
+        </div>
+        <div class="resumo-row">
+          <span class="resumo-key">Urgência</span>
+          <span class="resumo-val" id="resumoUrg">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="field" id="fieldLgpd">
+      <div class="field-label">Privacidade <span class="req">*</span></div>
+      <div class="lgpd-check-row" onclick="document.getElementById('lgpdCheck').click()">
+        <input type="checkbox" id="lgpdCheck" onclick="event.stopPropagation()">
+        <label for="lgpdCheck">
+          Li e concordo com o uso dos meus dados pessoais (nome e telefone) exclusivamente para fins de atendimento técnico pela equipe CAP/FMC, conforme a
+          <a onclick="event.stopPropagation();abrirLGPD()">Política de Privacidade LGPD</a>.
+        </label>
+      </div>
+      <div class="field-error" id="errLgpd"><span class="field-error-icon">⚠️</span> É necessário aceitar a Política de Privacidade para continuar.</div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-back" onclick="nextStep(1)">← Voltar</button>
+      <button class="btn-submit" id="btnSubmit" onclick="submitForm()">Enviar Chamado →</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<div class="footer-tag">
+  <span class="footer-tag-text">CAP Digital · FMC</span>
+  <div class="footer-dot"></div>
+  <span class="footer-tag-text">Central de Apoio Pedagógico</span>
+  <div class="footer-dot"></div>
+  <span class="footer-tag-text">Lei 13.709/2018</span>
+</div>
+
+<!-- ── LGPD BANNER ── -->
+<div class="lgpd-bar" id="lgpdBar">
+  <span class="lgpd-icon">🔒</span>
+  <div class="lgpd-text">
+    Este sistema coleta nome e telefone para fins de atendimento técnico, conforme a Lei 13.709/2018 (LGPD).
+    <a onclick="abrirLGPD()">Saiba mais.</a>
+  </div>
+  <button class="lgpd-btn-ok" onclick="fecharLGPDBanner()">Entendi</button>
+</div>
+
+<!-- ── LGPD MODAL ── -->
+<div class="lgpd-overlay" id="lgpdOverlay">
+  <div class="lgpd-modal">
+    <div class="lgpd-modal-title">🔒 Política de Privacidade</div>
+    <h3>1. Responsável pelo Tratamento</h3>
+    <p>Faculdade de Medicina de Campos (FMC) — Central de Apoio Pedagógico (CAP Digital). Os dados coletados são utilizados exclusivamente para fins de suporte técnico interno.</p>
+    <h3>2. Dados Coletados</h3>
+    <ul>
+      <li><strong>Nome completo</strong> — identificação do solicitante</li>
+      <li><strong>Tipo de vínculo</strong> — Professor, Aluno, Funcionário ou Visitante</li>
+      <li><strong>Telefone (WhatsApp)</strong> — para retorno e notificações sobre o chamado</li>
+      <li><strong>Local (sala/laboratório)</strong> — identificação do espaço físico com o problema</li>
+    </ul>
+    <h3>3. Finalidade e Base Legal</h3>
+    <p>Os dados são coletados com base no <strong>legítimo interesse institucional</strong> (Art. 7º, IX da LGPD) para viabilizar o atendimento técnico e registrar o histórico de chamados. Nenhum dado é utilizado para fins comerciais ou compartilhado com terceiros.</p>
+    <h3>4. Armazenamento e Retenção</h3>
+    <p>Os registros são armazenados em planilha institucional do Google Workspace da FMC, com acesso restrito à equipe CAP. Os dados são retidos pelo período necessário para fins de controle de qualidade e auditoria interna, podendo ser excluídos mediante solicitação.</p>
+    <h3>5. Direitos do Titular</h3>
+    <p>Nos termos do Art. 18 da LGPD, você pode solicitar: acesso, correção, exclusão ou anonimização dos seus dados, além de revogar o consentimento a qualquer momento. Solicitações devem ser dirigidas ao e-mail da CAP ou presencialmente na secretaria da FMC.</p>
+    <h3>6. Contato</h3>
+    <p>Para dúvidas sobre privacidade, entre em contato com a equipe CAP/FMC.</p>
+    <button class="lgpd-close" onclick="fecharLGPD()">Fechar</button>
+  </div>
+</div>
+
+<!-- ── SUCCESS ── -->
+<div id="success">
+  <div class="success-card">
+    <div class="success-icon-wrap">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="18" fill="#2d6e65" fill-opacity="0.12"/>
+        <path d="M11 18.5L15.5 23L25 13" stroke="#1e524a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="success-title">Chamado Registrado!</div>
+    <div class="success-msg">
+      Sua solicitação foi registrada com sucesso.<br>
+      A equipe CAP já foi notificada e irá atender em breve.
+    </div>
+
+    <div class="protocolo-badge">
+      <span class="protocolo-icon">🎫</span>
+      <div class="protocolo-info">
+        <div class="protocolo-label">Número do Protocolo</div>
+        <div class="protocolo-number" id="successProtocolo">—</div>
+      </div>
+      <button class="protocolo-copy" onclick="copiarProtocolo()">Copiar</button>
+    </div>
+
+    <div class="success-info">
+      <span class="success-info-icon">📍</span>
+      <div class="success-info-text">
+        Local do chamado
+        <strong id="successSala">—</strong>
+      </div>
+    </div>
+    <div class="success-info">
+      <span class="success-info-icon">🔧</span>
+      <div class="success-info-text">
+        Categoria registrada
+        <strong id="successCat">—</strong>
+      </div>
+    </div>
+    <div class="success-info">
+      <span class="success-info-icon">⚡</span>
+      <div class="success-info-text">
+        Nível de urgência
+        <strong id="successUrg">—</strong>
+      </div>
+    </div>
+    <div class="success-info">
+      <span class="success-info-icon">🎓</span>
+      <div class="success-info-text">
+        Tipo de solicitante
+        <strong id="successTipo">—</strong>
+      </div>
+    </div>
+
+    <button class="btn-novo" onclick="voltarFormulario()">+ Abrir novo chamado</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     LÓGICA — 100% PRESERVADA DO ORIGINAL
+═══════════════════════════════════════ -->
+
+<!-- Lê sala pelo QR Code -->
+<script>
+  (function() {
+    const params = new URLSearchParams(window.location.search);
+    const rawParam = params.get('sala') || '';
+    const salaParam = rawParam.replace(/[<>"'`]/g, '').slice(0, 60);
+
+    if (salaParam) {
+      const ehNumero = /^\d+$/.test(salaParam);
+      const nomeFormatado = salaParam.replace(/_/g, ' ').replace(/^Lab /i, 'Lab. ');
+      const displayText = ehNumero ? 'SALA ' + salaParam : nomeFormatado.toUpperCase();
+      const valorReal   = ehNumero ? 'Sala ' + salaParam : nomeFormatado;
+      document.getElementById('salaDisplay').textContent = displayText;
+      document.getElementById('sala').value              = valorReal;
+      document.getElementById('salaBadge').textContent   = '\u2713 Identificado pelo QR Code';
+      document.getElementById('salaHelper').textContent  = 'Sala identificada automaticamente';
+    } else {
+      const badgeWrap = document.getElementById('salaBadgeWrap');
+      const helper    = document.getElementById('salaHelper');
+      badgeWrap.style.display = 'none';
+      helper.style.display    = 'none';
+
+      const SALAS = [
+        { nome: 'Sala 201', tipo: 'Sala de Aula' },
+        { nome: 'Sala 202', tipo: 'Sala de Aula' },
+        { nome: 'Sala 203', tipo: 'Sala de Aula' },
+        { nome: 'Sala 204', tipo: 'Sala de Aula' },
+        { nome: 'Sala 205', tipo: 'Sala de Aula' },
+        { nome: 'Sala 206', tipo: 'Sala de Aula' },
+        { nome: 'Sala 207', tipo: 'Sala de Aula' },
+        { nome: 'Sala 301', tipo: 'Sala de Aula' },
+        { nome: 'Sala 302', tipo: 'Sala de Aula' },
+        { nome: 'Sala 303', tipo: 'Sala de Aula' },
+        { nome: 'Sala 304', tipo: 'Sala de Aula' },
+        { nome: 'Sala 305', tipo: 'Sala de Aula' },
+        { nome: 'Sala 306', tipo: 'Sala de Aula' },
+        { nome: 'Sala 307', tipo: 'Sala de Aula' },
+        { nome: 'Sessão Tutorial 1', tipo: 'Tutorial' },
+        { nome: 'Sessão Tutorial 2', tipo: 'Tutorial' },
+        { nome: 'Sessão Tutorial 3', tipo: 'Tutorial' },
+        { nome: 'Lab. de Emergência', tipo: 'Laboratório' },
+        { nome: 'Lab. de Habilidades Médicas', tipo: 'Laboratório' },
+        { nome: 'Lab. de Pesquisa', tipo: 'Laboratório' },
+        { nome: 'Lab. de UTI', tipo: 'Laboratório' },
+        { nome: 'Lab. de Microscopia', tipo: 'Laboratório' },
+        { nome: 'Lab. Multidisciplinar 1', tipo: 'Laboratório' },
+        { nome: 'Lab. Multidisciplinar 2', tipo: 'Laboratório' },
+        { nome: 'Lab. Multidisciplinar 3', tipo: 'Laboratório' },
+        { nome: 'Lab. Multidisciplinar 4', tipo: 'Laboratório' },
+        { nome: 'Lab. de Anatomia', tipo: 'Laboratório' },
+        { nome: 'Lab. de Informática', tipo: 'Laboratório' },
+        { nome: 'Lab. de Enfermagem', tipo: 'Laboratório' },
+        { nome: 'Sala de Reuniões', tipo: 'Administrativo' },
+        { nome: 'Anfiteatro', tipo: 'Anfiteatro' },
+      ];
+
+      const wrap = document.createElement('div');
+      wrap.className = 'sala-autocomplete-wrap';
+      const searchIcon = document.createElement('span');
+      searchIcon.className = 'sala-search-icon';
+      searchIcon.textContent = '🔍';
+      const confirmedIcon = document.createElement('span');
+      confirmedIcon.className = 'sala-confirmed-icon';
+      confirmedIcon.textContent = '✓ confirmado';
+      const inp = document.createElement('input');
+      inp.type = 'text';
+      inp.placeholder = 'Toque para ver todas ou digite para filtrar…';
+      inp.autocomplete = 'off';
+      inp.maxLength = 60;
+      const dropdown = document.createElement('div');
+      dropdown.className = 'sala-dropdown';
+      let hiIdx = -1;
+
+      function renderDropdown(filter) {
+        dropdown.innerHTML = '';
+        hiIdx = -1;
+        const filtered = filter.length === 0
+          ? SALAS
+          : SALAS.filter(s => s.nome.toLowerCase().includes(filter.toLowerCase()) || s.tipo.toLowerCase().includes(filter.toLowerCase()));
+        if (filtered.length === 0) {
+          const noRes = document.createElement('div');
+          noRes.className = 'sala-no-results';
+          noRes.textContent = 'Nenhuma sala encontrada';
+          dropdown.appendChild(noRes);
+        } else {
+          filtered.forEach((s) => {
+            const item = document.createElement('div');
+            item.className = 'sala-dropdown-item';
+            const iconSpan = document.createElement('span');
+            iconSpan.textContent = '📍';
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = s.nome;
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'sala-tag-tipo';
+            tagSpan.textContent = s.tipo;
+            item.appendChild(iconSpan);
+            item.appendChild(nameSpan);
+            item.appendChild(tagSpan);
+            item.addEventListener('mousedown', () => selectSala(s.nome));
+            dropdown.appendChild(item);
+          });
+        }
+        dropdown.classList.add('open');
+      }
+
+      function selectSala(nome) {
+        const valid = SALAS.find(s => s.nome === nome);
+        if (!valid) return;
+        inp.value = nome;
+        document.getElementById('sala').value = nome;
+        confirmedIcon.style.display = 'block';
+        inp.style.borderColor = 'var(--primary)';
+        inp.style.paddingRight = '110px';
+        dropdown.classList.remove('open');
+      }
+
+      inp.addEventListener('focus', () => renderDropdown(inp.value));
+      inp.addEventListener('input', () => {
+        document.getElementById('sala').value = '';
+        confirmedIcon.style.display = 'none';
+        inp.style.borderColor = '';
+        inp.style.paddingRight = '';
+        renderDropdown(inp.value);
+      });
+      inp.addEventListener('blur', () => setTimeout(() => dropdown.classList.remove('open'), 150));
+      inp.addEventListener('keydown', (e) => {
+        const items = dropdown.querySelectorAll('.sala-dropdown-item');
+        if (e.key === 'ArrowDown') { hiIdx = Math.min(hiIdx+1, items.length-1); items.forEach((it,i) => it.classList.toggle('highlighted', i===hiIdx)); e.preventDefault(); }
+        else if (e.key === 'ArrowUp') { hiIdx = Math.max(hiIdx-1, 0); items.forEach((it,i) => it.classList.toggle('highlighted', i===hiIdx)); e.preventDefault(); }
+        else if (e.key === 'Enter' && hiIdx >= 0) { selectSala(items[hiIdx].querySelector('span:nth-child(2)').textContent); }
+        else if (e.key === 'Escape') { dropdown.classList.remove('open'); }
+      });
+
+      wrap.appendChild(searchIcon);
+      wrap.appendChild(inp);
+      wrap.appendChild(confirmedIcon);
+      wrap.appendChild(dropdown);
+      const hiddenSala = document.getElementById('sala');
+      hiddenSala.after(wrap);
+    }
+  })();
+</script>
+
+<script>
+  let currentStep  = 0;
+  let selectedCat  = '';
+  let selectedUrg  = '';
+  let selectedTipo = '';
+  let protocoloGerado = '';
+  let formSubmitted = false;
+
+  function sanitize(str) {
+    const div = document.createElement('div');
+    div.textContent = String(str || '').trim().slice(0, 500);
+    return div.textContent;
+  }
+  function isNomeValido(nome) {
+    return nome.length >= 3 && nome.length <= 100 && /^[\p{L}\p{M}\s'.,-]+$/u.test(nome);
+  }
+  function isTelValido(tel) {
+    if (!tel) return false;
+    return /^[\d\s\(\)\+\-]{7,20}$/.test(tel);
+  }
+  function gerarProtocolo() {
+    const now = new Date();
+    const ano = now.getFullYear();
+    const ts  = String(now.getTime()).slice(-5);
+    const rnd = String(Math.floor(Math.random() * 90) + 10);
+    return `CAP-${ano}-${ts}${rnd}`;
+  }
+
+  function selectTipo(el, value) {
+    document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedTipo = value;
+  }
+  function copiarProtocolo() {
+    if (protocoloGerado) {
+      navigator.clipboard.writeText(protocoloGerado).then(() => {
+        const btn = document.querySelector('.protocolo-copy');
+        btn.textContent = '✓ Copiado';
+        setTimeout(() => btn.textContent = 'Copiar', 2000);
+      });
+    }
+  }
+  function selectCat(el, value) {
+    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedCat = value;
+    const other = document.getElementById('otherInput');
+    if (value === 'Outro') other.classList.add('show');
+    else other.classList.remove('show');
+  }
+  function selectUrg(el, value) {
+    document.querySelectorAll('.urg-btn').forEach(b => {
+      b.classList.remove('selected-alta','selected-media','selected-baixa');
+    });
+    selectedUrg = value;
+    if (value === 'Alta') el.classList.add('selected-alta');
+    else if (value === 'Média') el.classList.add('selected-media');
+    else el.classList.add('selected-baixa');
+  }
+
+  function updateSteps(step) {
+    for (let i = 0; i < 3; i++) {
+      const item = document.getElementById('stepItem' + i);
+      const circ = document.getElementById('seg' + i);
+      const name = document.getElementById('sname' + i);
+      item.className = 'step-item';
+      if (i < step) {
+        item.classList.add('done');
+        circ.textContent = '✓';
+      } else if (i === step) {
+        item.classList.add('active');
+        circ.textContent = String(i + 1);
+      } else {
+        circ.textContent = String(i + 1);
+      }
+    }
+  }
+
+  function showErr(id, fieldId) {
+    const e = document.getElementById(id);
+    const f = fieldId ? document.getElementById(fieldId) : null;
+    if (e) e.classList.add('show');
+    if (f) f.classList.add('has-error');
+  }
+  function clearErr(id, fieldId) {
+    const e = document.getElementById(id);
+    const f = fieldId ? document.getElementById(fieldId) : null;
+    if (e) e.classList.remove('show');
+    if (f) f.classList.remove('has-error');
+  }
+  function clearAllErrors() {
+    document.querySelectorAll('.field-error').forEach(e => e.classList.remove('show'));
+    document.querySelectorAll('.has-error').forEach(f => f.classList.remove('has-error'));
+  }
+
+  function nextStep(step) {
+    clearAllErrors();
+    let hasError = false;
+
+    if (currentStep === 0 && step === 1) {
+      const sala = document.getElementById('sala').value.trim();
+      if (!sala) { showErr('errSala', 'fieldSala'); hasError = true; }
+      if (!selectedCat) { showErr('errCat', 'fieldCat'); hasError = true; }
+      if (selectedCat === 'Outro') {
+        const outroVal = document.getElementById('outroTexto').value.trim();
+        if (outroVal.length < 3) { showErr('errCat', 'fieldCat'); hasError = true; }
+      }
+      if (hasError) {
+        document.querySelector('.field-error.show')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+    if (currentStep === 1 && step === 2) {
+      if (!selectedUrg) { showErr('errUrg', 'fieldUrg'); hasError = true; }
+      const desc = document.getElementById('descricao').value.trim();
+      if (desc.length < 5) { showErr('errDesc', 'fieldDesc'); hasError = true; }
+      if (hasError) {
+        document.querySelector('.field-error.show')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (!protocoloGerado) protocoloGerado = gerarProtocolo();
+      document.getElementById('resumoProtocolo').textContent = protocoloGerado;
+      document.getElementById('resumoSala').textContent = document.getElementById('sala').value;
+      document.getElementById('resumoCat').textContent = selectedCat;
+      document.getElementById('resumoUrg').textContent = selectedUrg;
+    }
+
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep = step;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateSteps(step);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnIQ6tBoRjEEkPksVvOYOgurWsa8yUa_Xke8LZF12pjkJQRhGfhJS-3YS-QPRbzqsiXg/exec';
+  const API_ORIGIN_KEY  = 'cap-fmc-v1';
+
+  function abrirLGPD()  { document.getElementById('lgpdOverlay').classList.add('open'); }
+  function fecharLGPD() { document.getElementById('lgpdOverlay').classList.remove('open'); }
+  function fecharLGPDBanner() {
+    document.getElementById('lgpdBar').classList.add('hidden');
+    try { localStorage.setItem('cap_lgpd_ok', '1'); } catch(e) {}
+  }
+
+  try {
+    if (localStorage.getItem('cap_lgpd_ok')) {
+      document.getElementById('lgpdBar').classList.add('hidden');
+    }
+  } catch(e) {}
+
+  function submitForm() {
+    if (formSubmitted) return;
+    clearAllErrors();
+    let hasError = false;
+    const nome = document.getElementById('nome').value.trim();
+    const tel  = document.getElementById('telefone').value.trim();
+    if (!nome || !isNomeValido(nome))  { showErr('errNome', 'fieldNome'); hasError = true; }
+    if (!selectedTipo)                  { showErr('errTipo', 'fieldTipo'); hasError = true; }
+    if (!document.getElementById('lgpdCheck').checked) { showErr('errLgpd', 'fieldLgpd'); hasError = true; }
+    if (!tel || !isTelValido(tel))      { showErr('errTel', 'fieldTel');   hasError = true; }
+    if (hasError) {
+      document.querySelector('.field-error.show')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const sala    = document.getElementById('sala').value;
+    const cat     = selectedCat === 'Outro'
+      ? sanitize(document.getElementById('outroTexto').value) || 'Outro'
+      : selectedCat;
+    const urg     = selectedUrg;
+    const desc    = sanitize(document.getElementById('descricao').value);
+    const nomeSan = sanitize(nome);
+    const telSan  = sanitize(tel) || '—';
+    const protocolo = protocoloGerado || gerarProtocolo();
+
+    formSubmitted = true;
+    const btnSubmit = document.getElementById('btnSubmit');
+    btnSubmit.textContent = 'Enviando…';
+    btnSubmit.disabled = true;
+
+    fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        origin:    API_ORIGIN_KEY,
+        protocolo, sala, categoria: cat,
+        urgencia:  urg, descricao: desc,
+        nome:      nomeSan, tipo: selectedTipo, telefone: telSan
+      })
+    })
+    .then(() => mostrarSucesso(sala, cat, urg, protocolo, nomeSan))
+    .catch(() => mostrarSucesso(sala, cat, urg, protocolo, nomeSan));
+  }
+
+  function mostrarSucesso(sala, cat, urg, protocolo, nome) {
+    document.querySelector('.form-card').style.display = 'none';
+    document.getElementById('stepsWrap').style.display = 'none';
+    document.querySelector('.hero').style.display = 'none';
+    document.querySelector('.footer-tag').style.display = 'none';
+
+    const successEl = document.getElementById('success');
+    successEl.style.display = 'block';
+
+    document.getElementById('successProtocolo').textContent = protocolo;
+    document.getElementById('successSala').textContent      = sala;
+    document.getElementById('successCat').textContent       = cat;
+    document.getElementById('successUrg').textContent       = urg;
+    document.getElementById('successTipo').textContent      = selectedTipo;
+
+    try {
+      const chamados = JSON.parse(localStorage.getItem('cap_chamados') || '{}');
+      chamados[protocolo] = {
+        protocolo, sala, categoria: cat, urgencia: urg,
+        tipo: selectedTipo, nome: nome,
+        status: 0,
+        abertoemTs: new Date().toLocaleString('pt-BR')
+      };
+      const keys = Object.keys(chamados);
+      if (keys.length > 50) { delete chamados[keys[0]]; }
+      localStorage.setItem('cap_chamados', JSON.stringify(chamados));
+    } catch(e) {}
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function voltarFormulario() { location.reload(); }
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(reg => {
+          if ('SyncManager' in window) {
+            reg.sync.register('sync-chamados').catch(() => {});
+          }
+        })
+        .catch(err => console.warn('SW erro:', err));
+    });
+  }
+</script>
+</body>
+</html>
