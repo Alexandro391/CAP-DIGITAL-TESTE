@@ -106,6 +106,9 @@
   }
   .summary-count{font-size:42px;font-weight:900;line-height:1;letter-spacing:-1.5px;}
   .summary-label{font-size:12px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.55);margin-top:6px;}
+  .summary-stats{display:flex;align-items:center;gap:22px;position:relative;z-index:1;}
+  .stat-divider{width:1px;align-self:stretch;background:rgba(255,255,255,0.14);}
+  .stat.secundario .summary-count{font-size:30px;color:rgba(255,255,255,0.92);}
   .summary-chips{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;position:relative;z-index:1;}
   .chip{
     display:flex;align-items:center;gap:6px;
@@ -132,7 +135,8 @@
     50%{box-shadow:0 0 0 6px rgba(220,38,38,0.18), var(--shadow-lg);}
   }
 
-  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;}
+  .card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px;
+    padding-bottom:10px;border-bottom:1px solid var(--neutral-100);}
   .proto{
     font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600;
     color:var(--primary-600); background:var(--primary-50); border:1px solid var(--primary-100);
@@ -151,10 +155,10 @@
   .categoria{font-size:13px;color:var(--neutral-700);font-weight:500;margin-bottom:6px;}
 
   /* ── CAMPOS ESTILO "CARD DE CHAMADO" (mesmo padrão do alerta que ia pro WhatsApp) ── */
-  .info-rows{display:flex;flex-direction:column;gap:6px;margin:10px 0 12px;}
+  .info-rows{display:flex;flex-direction:column;gap:7px;margin:4px 0 12px;}
   .info-row{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--neutral-700);line-height:1.4;}
-  .info-row .ico{flex-shrink:0;width:18px;text-align:center;font-size:13px;line-height:1.5;}
-  .info-row .lbl{font-weight:700;color:var(--neutral-900);flex-shrink:0;}
+  .info-row .ico{flex-shrink:0;width:16px;text-align:center;font-size:12px;line-height:1.5;opacity:0.7;}
+  .info-row .lbl{font-weight:700;color:var(--neutral-900);flex-shrink:0;min-width:82px;}
   .info-row .val{color:var(--neutral-500);word-break:break-word;}
   .info-row a.val{color:var(--primary-600);font-weight:600;text-decoration:none;}
   .status-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;letter-spacing:0.3px;
@@ -208,9 +212,13 @@
   /* ── TELAS GRANDES (desktop / TV) — ocupa a largura inteira em grid ── */
   @media (min-width: 900px){
     .topbar-inner, .summary, .lista, .footer{ max-width:100%; padding-left:36px; padding-right:36px; }
-    .lista{ display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); gap:16px; align-items:start; }
-    .summary-card{ padding:26px 34px; }
-    .summary-count{ font-size:52px; }
+    .lista{ display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 380px)); gap:18px 20px; justify-content:start; align-items:start; }
+    .card{ padding:18px 20px; }
+    .summary-card{ padding:24px 34px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:18px 32px; }
+    .summary-stats{ gap:32px; }
+    .summary-count{ font-size:46px; }
+    .stat.secundario .summary-count{ font-size:34px; }
+    .summary-chips{ margin-top:0; }
     .brand-title{ font-size:16px; }
     .brand-sub{ font-size:12px; }
   }
@@ -218,10 +226,12 @@
   /* ── TVs / telas bem grandes — tudo maior pra ler de longe ── */
   @media (min-width: 1400px){
     body{ font-size:16px; }
-    .lista{ grid-template-columns:repeat(auto-fill, minmax(440px, 1fr)); gap:20px; }
-    .summary-count{ font-size:64px; }
+    .lista{ grid-template-columns:repeat(auto-fill, minmax(400px, 460px)); gap:22px; }
+    .summary-count{ font-size:60px; }
+    .stat.secundario .summary-count{ font-size:42px; }
     .sala{ font-size:24px; }
     .info-row{ font-size:15px; }
+    .info-row .lbl{ min-width:100px; }
     .btn{ padding:14px 12px; font-size:15px; }
     .proto, .tempo{ font-size:13px; }
   }
@@ -261,8 +271,17 @@
 
 <div class="summary">
   <div class="summary-card">
-    <div class="summary-count" id="countPendentes">0</div>
-    <div class="summary-label">chamados pendentes</div>
+    <div class="summary-stats">
+      <div class="stat">
+        <div class="summary-count" id="countHoje">0</div>
+        <div class="summary-label">chamados hoje</div>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat secundario">
+        <div class="summary-count" id="countPendentes">0</div>
+        <div class="summary-label">pendentes</div>
+      </div>
+    </div>
     <div class="summary-chips">
       <span class="chip alta"><span class="dot"></span> Alta: <span id="cAlta">0</span></span>
       <span class="chip media"><span class="dot"></span> Média: <span id="cMedia">0</span></span>
@@ -494,6 +513,10 @@ function parseDataHora(str){
   return new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0), +(m[6]||0));
 }
 
+function isMesmoDia(a, b){
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
+
 /* O Google gviz manda datas cruas como texto "Date(ano,mes,dia,h,min,seg)".
    Usar esse valor (em vez do texto já formatado) evita perder a hora quando
    a COLUNA da planilha está formatada só como "Data" (sem hora) — nesse caso
@@ -634,7 +657,6 @@ function cardHTML(row, isNovo){
       </div>
 
       <div class="info-rows">
-        <div class="info-row"><span class="ico">📍</span><span class="lbl">Local:</span><span class="val">${escHtml(salaFmt)}</span></div>
         <div class="info-row"><span class="ico">🔧</span><span class="lbl">Categoria:</span><span class="val">${escHtml(row.categoria) || 'Não informada'}</span></div>
         ${row.descricao ? `<div class="info-row"><span class="ico">📝</span><span class="lbl">Descrição:</span><span class="val">${escHtml(row.descricao)}</span></div>` : ''}
         <div class="info-row"><span class="ico">👤</span><span class="lbl">Solicitante:</span><span class="val">${escHtml(row.solicitante) || 'Não informado'}</span></div>
@@ -655,6 +677,13 @@ function cardHTML(row, isNovo){
 
 function render(rows, novosProtos){
   const excluidos = loadExcluidos();
+
+  // Contagem geral do dia: todos os chamados de hoje, independente do status
+  // ou de terem sido excluídos desta tela (é uma contagem histórica do dia).
+  const hoje = new Date();
+  const chamadosHoje = rows.filter(r => r.dataObj && isMesmoDia(r.dataObj, hoje)).length;
+  document.getElementById('countHoje').textContent = chamadosHoje;
+
   const pendentes = rows
     .filter(r => !excluidos.has(r.proto))
     .sort((a,b) => {
