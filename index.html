@@ -1515,9 +1515,10 @@ input::placeholder, textarea::placeholder {
 
     <div class="field" id="fieldCat">
       <div class="field-label">Categoria do Chamado <span class="req">*</span></div>
+      <div class="helper" style="margin-top:-6px;margin-bottom:10px;">Você pode selecionar mais de uma opção, se necessário</div>
       <div class="cat-grid" id="catGrid">
-        <label class="cat-card" onclick="selectCat(this,'Projetor / Data Show')">
-          <input type="checkbox" name="categoria" value="Projetor / Data Show">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Projetor / Data Show" onchange="selectCat(this)">
           <span class="cat-icon">📽️</span>
           <div class="cat-info">
             <div class="cat-name">Projetor / TV</div>
@@ -1525,8 +1526,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Computador / Login / Sistema')">
-          <input type="checkbox" name="categoria" value="Computador / Login / Sistema">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Computador / Login / Sistema" onchange="selectCat(this)">
           <span class="cat-icon">💻</span>
           <div class="cat-info">
             <div class="cat-name">Computador</div>
@@ -1534,8 +1535,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Suporte Pedagógico')">
-          <input type="checkbox" name="categoria" value="Suporte Pedagógico">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Suporte Pedagógico" onchange="selectCat(this)">
           <span class="cat-icon">📚</span>
           <div class="cat-info">
             <div class="cat-name">Suporte Pedagógico</div>
@@ -1543,8 +1544,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Ar-condicionado / Climatização')">
-          <input type="checkbox" name="categoria" value="Ar-condicionado / Climatização">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Ar-condicionado / Climatização" onchange="selectCat(this)">
           <span class="cat-icon">❄️</span>
           <div class="cat-info">
             <div class="cat-name">Ar-condicionado</div>
@@ -1552,8 +1553,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Som / Microfone / Áudio')">
-          <input type="checkbox" name="categoria" value="Som / Microfone / Áudio">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Som / Microfone / Áudio" onchange="selectCat(this)">
           <span class="cat-icon">🎤</span>
           <div class="cat-info">
             <div class="cat-name">Som / Áudio</div>
@@ -1561,8 +1562,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Iluminação / Energia')">
-          <input type="checkbox" name="categoria" value="Iluminação / Energia">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Iluminação / Energia" onchange="selectCat(this)">
           <span class="cat-icon">💡</span>
           <div class="cat-info">
             <div class="cat-name">Iluminação</div>
@@ -1570,8 +1571,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Caneta / Apagador')">
-          <input type="checkbox" name="categoria" value="Caneta / Apagador">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Caneta / Apagador" onchange="selectCat(this)">
           <span class="cat-icon">✏️</span>
           <div class="cat-info">
             <div class="cat-name">Caneta / Apagador</div>
@@ -1579,8 +1580,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Infraestrutura')">
-          <input type="checkbox" name="categoria" value="Infraestrutura">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Infraestrutura" onchange="selectCat(this)">
           <span class="cat-icon">🪑</span>
           <div class="cat-info">
             <div class="cat-name">Infraestrutura</div>
@@ -1588,8 +1589,8 @@ input::placeholder, textarea::placeholder {
           </div>
           <div class="cat-check"></div>
         </label>
-        <label class="cat-card" onclick="selectCat(this,'Outro')">
-          <input type="checkbox" name="categoria" value="Outro">
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Outro" onchange="selectCat(this)">
           <span class="cat-icon">🔧</span>
           <div class="cat-info">
             <div class="cat-name">Outros</div>
@@ -1987,7 +1988,7 @@ input::placeholder, textarea::placeholder {
 
 <script>
   let currentStep  = 0;
-  let selectedCat  = [];
+  let selectedCats = [];
   let selectedUrg  = '';
   let selectedTipo = '';
   let protocoloGerado = '';
@@ -2027,18 +2028,20 @@ input::placeholder, textarea::placeholder {
       });
     }
   }
-  function selectCat(el, value) {
-    const checkbox = el.querySelector('input[type="checkbox"]');
-    const checked = checkbox.checked;
-    const idx = selectedCat.indexOf(value);
-    if (checked && idx === -1) {
-      selectedCat.push(value);
-    } else if (!checked && idx !== -1) {
-      selectedCat.splice(idx, 1);
+  function selectCat(checkbox) {
+    const card  = checkbox.closest('.cat-card');
+    const value = checkbox.value;
+
+    if (checkbox.checked) {
+      card.classList.add('selected');
+      if (!selectedCats.includes(value)) selectedCats.push(value);
+    } else {
+      card.classList.remove('selected');
+      selectedCats = selectedCats.filter(v => v !== value);
     }
-    el.classList.toggle('selected', checked);
+
     const other = document.getElementById('otherInput');
-    if (selectedCat.includes('Outro')) other.classList.add('show');
+    if (selectedCats.includes('Outro')) other.classList.add('show');
     else other.classList.remove('show');
   }
   function selectUrg(el, value) {
@@ -2093,8 +2096,8 @@ input::placeholder, textarea::placeholder {
     if (currentStep === 0 && step === 1) {
       const sala = document.getElementById('sala').value.trim();
       if (!sala) { showErr('errSala', 'fieldSala'); hasError = true; }
-      if (!selectedCat.length) { showErr('errCat', 'fieldCat'); hasError = true; }
-      if (selectedCat.includes('Outro')) {
+      if (selectedCats.length === 0) { showErr('errCat', 'fieldCat'); hasError = true; }
+      if (selectedCats.includes('Outro')) {
         const outroVal = document.getElementById('outroTexto').value.trim();
         if (outroVal.length < 3) { showErr('errCat', 'fieldCat'); hasError = true; }
       }
@@ -2114,7 +2117,7 @@ input::placeholder, textarea::placeholder {
       if (!protocoloGerado) protocoloGerado = gerarProtocolo();
       document.getElementById('resumoProtocolo').textContent = protocoloGerado;
       document.getElementById('resumoSala').textContent = document.getElementById('sala').value;
-      document.getElementById('resumoCat').textContent = selectedCat.join(', ');
+      document.getElementById('resumoCat').textContent = getCategoriasFinal();
       document.getElementById('resumoUrg').textContent = selectedUrg;
     }
 
@@ -2125,7 +2128,7 @@ input::placeholder, textarea::placeholder {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwnIQ6tBoRjEEkPksVvOYOgurWsa8yUa_Xke8LZF12pjkJQRhGfhJS-3YS-QPRbzqsiXg/exec';
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxId77oG4ZTcRzXth8Xdy_WNoKaDW_Lyer8dBqkohg4yOuOy9bSQWP_VcUh-3ZGW3vn/exec';
   const API_ORIGIN_KEY  = 'cap-fmc-v1';
 
   function abrirLGPD()  { document.getElementById('lgpdOverlay').classList.add('open'); }
@@ -2140,6 +2143,15 @@ input::placeholder, textarea::placeholder {
       document.getElementById('lgpdBar').classList.add('hidden');
     }
   } catch(e) {}
+
+  function getCategoriasFinal() {
+    if (selectedCats.length === 0) return '';
+    return selectedCats
+      .map(c => c === 'Outro'
+        ? (sanitize(document.getElementById('outroTexto').value) || 'Outro')
+        : c)
+      .join(', ');
+  }
 
   function submitForm() {
     if (formSubmitted) return;
@@ -2157,9 +2169,7 @@ input::placeholder, textarea::placeholder {
     }
 
     const sala    = document.getElementById('sala').value;
-    const cat     = selectedCat
-      .map(c => c === 'Outro' ? (sanitize(document.getElementById('outroTexto').value) || 'Outro') : c)
-      .join(', ');
+    const cat     = getCategoriasFinal();
     const urg     = selectedUrg;
     const desc    = sanitize(document.getElementById('descricao').value);
     const nomeSan = sanitize(nome);
