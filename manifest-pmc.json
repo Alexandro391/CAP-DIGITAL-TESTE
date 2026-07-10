@@ -1,0 +1,25 @@
+{
+  "name": "PMC · Painel de Monitoramento de Chamados",
+  "short_name": "PMC Chamados",
+  "description": "Painel de monitoramento em tempo real dos chamados pendentes do CAP Digital · FMC",
+  "start_url": "./painel-pmc.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0b2b2a",
+  "theme_color": "#0b2b2a",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
