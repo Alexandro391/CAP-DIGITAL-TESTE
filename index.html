@@ -1517,7 +1517,7 @@ input::placeholder, textarea::placeholder {
       <div class="field-label">Categoria do Chamado <span class="req">*</span></div>
       <div class="cat-grid" id="catGrid">
         <label class="cat-card" onclick="selectCat(this,'Projetor / Data Show')">
-          <input type="radio" name="categoria" value="Projetor / Data Show">
+          <input type="checkbox" name="categoria" value="Projetor / Data Show">
           <span class="cat-icon">📽️</span>
           <div class="cat-info">
             <div class="cat-name">Projetor / TV</div>
@@ -1526,7 +1526,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Computador / Login / Sistema')">
-          <input type="radio" name="categoria" value="Computador / Login / Sistema">
+          <input type="checkbox" name="categoria" value="Computador / Login / Sistema">
           <span class="cat-icon">💻</span>
           <div class="cat-info">
             <div class="cat-name">Computador</div>
@@ -1535,7 +1535,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Suporte Pedagógico')">
-          <input type="radio" name="categoria" value="Suporte Pedagógico">
+          <input type="checkbox" name="categoria" value="Suporte Pedagógico">
           <span class="cat-icon">📚</span>
           <div class="cat-info">
             <div class="cat-name">Suporte Pedagógico</div>
@@ -1544,7 +1544,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Ar-condicionado / Climatização')">
-          <input type="radio" name="categoria" value="Ar-condicionado / Climatização">
+          <input type="checkbox" name="categoria" value="Ar-condicionado / Climatização">
           <span class="cat-icon">❄️</span>
           <div class="cat-info">
             <div class="cat-name">Ar-condicionado</div>
@@ -1553,7 +1553,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Som / Microfone / Áudio')">
-          <input type="radio" name="categoria" value="Som / Microfone / Áudio">
+          <input type="checkbox" name="categoria" value="Som / Microfone / Áudio">
           <span class="cat-icon">🎤</span>
           <div class="cat-info">
             <div class="cat-name">Som / Áudio</div>
@@ -1562,7 +1562,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Iluminação / Energia')">
-          <input type="radio" name="categoria" value="Iluminação / Energia">
+          <input type="checkbox" name="categoria" value="Iluminação / Energia">
           <span class="cat-icon">💡</span>
           <div class="cat-info">
             <div class="cat-name">Iluminação</div>
@@ -1571,7 +1571,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Caneta / Apagador')">
-          <input type="radio" name="categoria" value="Caneta / Apagador">
+          <input type="checkbox" name="categoria" value="Caneta / Apagador">
           <span class="cat-icon">✏️</span>
           <div class="cat-info">
             <div class="cat-name">Caneta / Apagador</div>
@@ -1580,7 +1580,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Infraestrutura')">
-          <input type="radio" name="categoria" value="Infraestrutura">
+          <input type="checkbox" name="categoria" value="Infraestrutura">
           <span class="cat-icon">🪑</span>
           <div class="cat-info">
             <div class="cat-name">Infraestrutura</div>
@@ -1589,7 +1589,7 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card" onclick="selectCat(this,'Outro')">
-          <input type="radio" name="categoria" value="Outro">
+          <input type="checkbox" name="categoria" value="Outro">
           <span class="cat-icon">🔧</span>
           <div class="cat-info">
             <div class="cat-name">Outros</div>
@@ -1987,7 +1987,7 @@ input::placeholder, textarea::placeholder {
 
 <script>
   let currentStep  = 0;
-  let selectedCat  = '';
+  let selectedCat  = [];
   let selectedUrg  = '';
   let selectedTipo = '';
   let protocoloGerado = '';
@@ -2028,11 +2028,16 @@ input::placeholder, textarea::placeholder {
     }
   }
   function selectCat(el, value) {
-    document.querySelectorAll('.cat-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    selectedCat = value;
+    const idx = selectedCat.indexOf(value);
+    if (idx === -1) {
+      selectedCat.push(value);
+      el.classList.add('selected');
+    } else {
+      selectedCat.splice(idx, 1);
+      el.classList.remove('selected');
+    }
     const other = document.getElementById('otherInput');
-    if (value === 'Outro') other.classList.add('show');
+    if (selectedCat.includes('Outro')) other.classList.add('show');
     else other.classList.remove('show');
   }
   function selectUrg(el, value) {
@@ -2087,8 +2092,8 @@ input::placeholder, textarea::placeholder {
     if (currentStep === 0 && step === 1) {
       const sala = document.getElementById('sala').value.trim();
       if (!sala) { showErr('errSala', 'fieldSala'); hasError = true; }
-      if (!selectedCat) { showErr('errCat', 'fieldCat'); hasError = true; }
-      if (selectedCat === 'Outro') {
+      if (!selectedCat.length) { showErr('errCat', 'fieldCat'); hasError = true; }
+      if (selectedCat.includes('Outro')) {
         const outroVal = document.getElementById('outroTexto').value.trim();
         if (outroVal.length < 3) { showErr('errCat', 'fieldCat'); hasError = true; }
       }
@@ -2108,7 +2113,7 @@ input::placeholder, textarea::placeholder {
       if (!protocoloGerado) protocoloGerado = gerarProtocolo();
       document.getElementById('resumoProtocolo').textContent = protocoloGerado;
       document.getElementById('resumoSala').textContent = document.getElementById('sala').value;
-      document.getElementById('resumoCat').textContent = selectedCat;
+      document.getElementById('resumoCat').textContent = selectedCat.join(', ');
       document.getElementById('resumoUrg').textContent = selectedUrg;
     }
 
@@ -2151,9 +2156,9 @@ input::placeholder, textarea::placeholder {
     }
 
     const sala    = document.getElementById('sala').value;
-    const cat     = selectedCat === 'Outro'
-      ? sanitize(document.getElementById('outroTexto').value) || 'Outro'
-      : selectedCat;
+    const cat     = selectedCat
+      .map(c => c === 'Outro' ? (sanitize(document.getElementById('outroTexto').value) || 'Outro') : c)
+      .join(', ');
     const urg     = selectedUrg;
     const desc    = sanitize(document.getElementById('descricao').value);
     const nomeSan = sanitize(nome);
