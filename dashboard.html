@@ -1527,7 +1527,7 @@
   <script>
     /* ── CONFIG ── */
     const SHEET_ID = '1pshUNeBk-30YxnuYttnVDNioI5LXrHgGQfRY21pehng';
-    const SHEET_TAB = 'Página1';
+    const SHEET_TAB = 'Chamados';
     const PIN_CODE = '1234';
 
     const COL_DATA = 0;
@@ -1745,7 +1745,7 @@
 
     function fetchAndDraw() {
       const url = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID +
-        '/gviz/tq?gid=0&tq=select%20*&headers=1';
+        '/gviz/tq?sheet=' + encodeURIComponent(SHEET_TAB) + '&tq=select%20*&headers=1';
       const query = new google.visualization.Query(url);
       query.send(handleQueryResponse);
     }
