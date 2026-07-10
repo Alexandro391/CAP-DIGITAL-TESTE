@@ -564,11 +564,11 @@ function render(rows, novosProtos){
   const pendentes = rows
     .filter(r => r.status === 'Pendente')
     .sort((a,b) => {
-      // Ordem cronológica de chegada: quem chegou primeiro aparece primeiro.
+      // Ordem cronológica decrescente: chamado mais recente aparece no topo.
       // Chamados sem data reconhecida ficam por último (não têm como ser ordenados).
-      const ta = a.dataObj ? a.dataObj.getTime() : Infinity;
-      const tb = b.dataObj ? b.dataObj.getTime() : Infinity;
-      return ta - tb;
+      const ta = a.dataObj ? a.dataObj.getTime() : -Infinity;
+      const tb = b.dataObj ? b.dataObj.getTime() : -Infinity;
+      return tb - ta;
     });
 
   document.getElementById('countPendentes').textContent = pendentes.length;
