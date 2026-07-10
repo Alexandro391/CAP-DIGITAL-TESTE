@@ -2028,14 +2028,15 @@ input::placeholder, textarea::placeholder {
     }
   }
   function selectCat(el, value) {
+    const checkbox = el.querySelector('input[type="checkbox"]');
+    const checked = checkbox.checked;
     const idx = selectedCat.indexOf(value);
-    if (idx === -1) {
+    if (checked && idx === -1) {
       selectedCat.push(value);
-      el.classList.add('selected');
-    } else {
+    } else if (!checked && idx !== -1) {
       selectedCat.splice(idx, 1);
-      el.classList.remove('selected');
     }
+    el.classList.toggle('selected', checked);
     const other = document.getElementById('otherInput');
     if (selectedCat.includes('Outro')) other.classList.add('show');
     else other.classList.remove('show');
