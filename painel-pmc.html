@@ -161,6 +161,14 @@
     text-transform:uppercase;padding:3px 10px;border-radius:100px;background:var(--amber-bg);color:var(--amber);}
   .status-pill.status-pendente{background:var(--amber-bg);color:var(--amber);}
   .status-pill.status-atendimento{background:var(--primary-100);color:var(--primary-700);}
+  .status-pill.status-concluido{background:var(--green-bg);color:var(--green);}
+
+  .btn-excluir{
+    display:block; width:100%; margin-top:8px; background:none; border:none;
+    color:var(--neutral-300); font-size:10.5px; font-weight:600; text-decoration:underline;
+    text-underline-offset:2px; cursor:pointer; padding:4px; text-align:center;
+  }
+  .btn-excluir:active{color:var(--red);}
 
   .actions{display:flex;gap:8px;}
   .btn{
@@ -169,8 +177,8 @@
   }
   .btn-atender{background:var(--primary-600);color:#fff;}
   .btn-atender:active{background:var(--primary-700);}
-  .btn-encerrar{background:var(--red);color:#fff;}
-  .btn-encerrar:active{background:#b91c1c;}
+  .btn-feito{flex:1;background:var(--green-bg);color:var(--green);border-radius:11px;padding:11px 10px;
+    font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;}
   .btn-call{
     width:44px;flex:none;background:var(--primary-50);color:var(--primary-700);border:1px solid var(--primary-100);
   }
@@ -291,6 +299,7 @@ const COL_DATA=0, COL_PROTOCOLO=1, COL_SALA=2, COL_CATEGORIA=3, COL_URGENCIA=4,
 
 const STORAGE_KNOWN   = 'pmc_known_protocolos';
 const STORAGE_PENDING = 'pmc_local_pending'; // evita "piscar" status logo após clicar em Atender/Concluir
+const STORAGE_EXCLUIDOS = 'pmc_excluidos_local'; // chamados removidos da tela (só neste aparelho — não apaga da planilha)
 
 let audioCtx = null;
 let soundOn  = true;
@@ -446,6 +455,23 @@ function saveKnown(set){
   }catch(e){}
 }
 
+/* ── EXCLUSÃO LOCAL (some só desta tela; não apaga nem altera a planilha) ── */
+function loadExcluidos(){
+  try{ return new Set(JSON.parse(localStorage.getItem(STORAGE_EXCLUIDOS) || '[]')); }
+  catch(e){ return new Set(); }
+}
+function saveExcluidos(set){
+  try{ localStorage.setItem(STORAGE_EXCLUIDOS, JSON.stringify([...set].slice(-500))); }catch(e){}
+}
+function excluirCard(proto){
+  const ok = confirm('Tem certeza que deseja excluir o chamado ' + proto + ' desta tela?\n\nIsso só remove a visualização neste aparelho — o registro continua no dashboard e no histórico.');
+  if(!ok) return;
+  const set = loadExcluidos();
+  set.add(proto);
+  saveExcluidos(set);
+  tick();
+}
+
 /* ── PARSE DA PLANILHA (gviz) — mesma fonte do dashboard.html ── */
 function normalizeStatus(raw){
   const s = (raw||'').trim().toLowerCase();
@@ -577,16 +603,23 @@ function cardHTML(row, isNovo){
   const wa = telWa(row.telefone);
   const salaFmt = (row.sala||'—').replace(/^(\d+)$/, 'Sala $1');
   const emAtendimento = row.status === 'Em atendimento';
+  const concluido = row.status === 'Concluído';
   const waMsg = mensagemConfirmacaoZap(row, salaFmt);
 
   // Botão único que evolui conforme o status:
   // Pendente -> "🔧 Assumir" (verde) muda status pra "Em atendimento"
-  // Em atendimento -> "🔴 Encerrar" (vermelho) muda status pra "Concluído" e some da lista
-  const botaoAcao = emAtendimento
-    ? `<button class="btn btn-encerrar" onclick="atualizarStatus('${row.proto}','Concluído', this)">🔴 Encerrar</button>`
-    : `<button class="btn btn-atender" onclick="atualizarStatus('${row.proto}','Em atendimento', this)">🔧 Assumir</button>`;
+  // Em atendimento -> "✅ Concluir" (verde) muda status pra "Concluído"
+  // Concluído -> sem botão de ação, só o selo verde
+  let botaoAcao;
+  if(concluido){
+    botaoAcao = `<span class="btn btn-feito" tabindex="-1">✅ Concluído</span>`;
+  }else if(emAtendimento){
+    botaoAcao = `<button class="btn btn-atender" onclick="atualizarStatus('${row.proto}','Concluído', this)">✅ Concluir</button>`;
+  }else{
+    botaoAcao = `<button class="btn btn-atender" onclick="atualizarStatus('${row.proto}','Em atendimento', this)">🔧 Assumir</button>`;
+  }
 
-  const statusClasse = emAtendimento ? 'status-atendimento' : 'status-pendente';
+  const statusClasse = concluido ? 'status-concluido' : emAtendimento ? 'status-atendimento' : 'status-pendente';
 
   return `
     <div class="card urg-${row.urgencia} ${isNovo ? 'novo' : ''}" data-proto="${row.proto}">
@@ -615,12 +648,14 @@ function cardHTML(row, isNovo){
         ${wa ? `<a class="btn btn-call" href="https://wa.me/${wa}?text=${waMsg}" target="_blank" title="Enviar confirmação por WhatsApp">💬</a>` : ''}
         ${row.telefone ? `<a class="btn btn-call" href="tel:${row.telefone.replace(/\D/g,'')}" title="Ligar">📞</a>` : ''}
       </div>
+      <button class="btn-excluir" onclick="excluirCard('${row.proto}')">🗑️ excluir desta tela</button>
     </div>`;
 }
 
 function render(rows, novosProtos){
+  const excluidos = loadExcluidos();
   const pendentes = rows
-    .filter(r => r.status === 'Pendente' || r.status === 'Em atendimento')
+    .filter(r => !excluidos.has(r.proto))
     .sort((a,b) => {
       // Ordem cronológica decrescente: chamado mais recente aparece no topo.
       // Chamados sem data reconhecida ficam por último (não têm como ser ordenados).
@@ -629,10 +664,11 @@ function render(rows, novosProtos){
       return tb - ta;
     });
 
+  const ativos = pendentes.filter(r => r.status !== 'Concluído');
   document.getElementById('countPendentes').textContent = pendentes.filter(r=>r.status==='Pendente').length;
-  document.getElementById('cAlta').textContent  = pendentes.filter(r=>r.urgencia==='Alta').length;
-  document.getElementById('cMedia').textContent = pendentes.filter(r=>r.urgencia==='Média').length;
-  document.getElementById('cBaixa').textContent = pendentes.filter(r=>r.urgencia==='Baixa').length;
+  document.getElementById('cAlta').textContent  = ativos.filter(r=>r.urgencia==='Alta').length;
+  document.getElementById('cMedia').textContent = ativos.filter(r=>r.urgencia==='Média').length;
+  document.getElementById('cBaixa').textContent = ativos.filter(r=>r.urgencia==='Baixa').length;
 
   const lista = document.getElementById('lista');
   const empty = document.getElementById('empty');
