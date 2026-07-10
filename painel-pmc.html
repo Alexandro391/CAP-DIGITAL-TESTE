@@ -159,6 +159,8 @@
   .info-row a.val{color:var(--primary-600);font-weight:600;text-decoration:none;}
   .status-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:800;letter-spacing:0.3px;
     text-transform:uppercase;padding:3px 10px;border-radius:100px;background:var(--amber-bg);color:var(--amber);}
+  .status-pill.status-pendente{background:var(--amber-bg);color:var(--amber);}
+  .status-pill.status-atendimento{background:var(--primary-100);color:var(--primary-700);}
 
   .actions{display:flex;gap:8px;}
   .btn{
@@ -167,8 +169,8 @@
   }
   .btn-atender{background:var(--primary-600);color:#fff;}
   .btn-atender:active{background:var(--primary-700);}
-  .btn-concluir{background:var(--neutral-100);color:var(--neutral-700);}
-  .btn-concluir:active{background:var(--neutral-300);}
+  .btn-encerrar{background:var(--red);color:#fff;}
+  .btn-encerrar:active{background:#b91c1c;}
   .btn-call{
     width:44px;flex:none;background:var(--primary-50);color:var(--primary-700);border:1px solid var(--primary-100);
   }
@@ -194,6 +196,27 @@
     transition:transform 0.3s ease; max-width:90%; text-align:center;
   }
   #toast.show{transform:translateX(-50%) translateY(0);}
+
+  /* ── TELAS GRANDES (desktop / TV) — ocupa a largura inteira em grid ── */
+  @media (min-width: 900px){
+    .topbar-inner, .summary, .lista, .footer{ max-width:100%; padding-left:36px; padding-right:36px; }
+    .lista{ display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); gap:16px; align-items:start; }
+    .summary-card{ padding:26px 34px; }
+    .summary-count{ font-size:52px; }
+    .brand-title{ font-size:16px; }
+    .brand-sub{ font-size:12px; }
+  }
+
+  /* ── TVs / telas bem grandes — tudo maior pra ler de longe ── */
+  @media (min-width: 1400px){
+    body{ font-size:16px; }
+    .lista{ grid-template-columns:repeat(auto-fill, minmax(440px, 1fr)); gap:20px; }
+    .summary-count{ font-size:64px; }
+    .sala{ font-size:24px; }
+    .info-row{ font-size:15px; }
+    .btn{ padding:14px 12px; font-size:15px; }
+    .proto, .tempo{ font-size:13px; }
+  }
 </style>
 </head>
 <body>
@@ -221,6 +244,7 @@
       </div>
     </div>
     <span class="live-dot" id="liveDot"></span>
+    <div class="icon-btn" id="btnFull" title="Tela cheia (desktop/TV)">⛶</div>
     <div class="icon-btn" id="btnWake" title="Manter tela ativa">📱</div>
     <div class="icon-btn" id="btnSom" title="Som">🔊</div>
   </div>
@@ -380,6 +404,20 @@ document.addEventListener('visibilitychange', async () => {
   }
 });
 
+document.getElementById('btnFull').addEventListener('click', async () => {
+  try{
+    if(!document.fullscreenElement){
+      await document.documentElement.requestFullscreen();
+      document.getElementById('btnFull').classList.remove('off');
+    }else{
+      await document.exitFullscreen();
+    }
+  }catch(e){ showToast('⚠️ Tela cheia não suportada neste navegador'); }
+});
+document.addEventListener('fullscreenchange', () => {
+  document.getElementById('btnFull').classList.toggle('off', !document.fullscreenElement);
+});
+
 document.getElementById('btnSom').addEventListener('click', (e) => {
   soundOn = !soundOn;
   e.currentTarget.textContent = soundOn ? '🔊' : '🔇';
@@ -514,6 +552,16 @@ function telWa(tel){
   return null;
 }
 
+/* Mensagem automática enviada ao solicitante pelo botão 💬 do card */
+function mensagemConfirmacaoZap(row, salaFmt){
+  const msg = '*CAP Digital · FMC*\n\n' +
+    '✅ Solicitação registrada com sucesso.\n' +
+    'A equipe CAP já foi notificada e irá atender em breve.\n\n' +
+    '🎫 Protocolo: *' + row.proto + '*\n' +
+    '📍 Local: ' + salaFmt;
+  return encodeURIComponent(msg);
+}
+
 function escHtml(s){
   return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
@@ -528,6 +576,17 @@ function cardHTML(row, isNovo){
   const t = tempoDecorridoLabel(row.dataObj);
   const wa = telWa(row.telefone);
   const salaFmt = (row.sala||'—').replace(/^(\d+)$/, 'Sala $1');
+  const emAtendimento = row.status === 'Em atendimento';
+  const waMsg = mensagemConfirmacaoZap(row, salaFmt);
+
+  // Botão único que evolui conforme o status:
+  // Pendente -> "🔧 Assumir" (verde) muda status pra "Em atendimento"
+  // Em atendimento -> "🔴 Encerrar" (vermelho) muda status pra "Concluído" e some da lista
+  const botaoAcao = emAtendimento
+    ? `<button class="btn btn-encerrar" onclick="atualizarStatus('${row.proto}','Concluído', this)">🔴 Encerrar</button>`
+    : `<button class="btn btn-atender" onclick="atualizarStatus('${row.proto}','Em atendimento', this)">🔧 Assumir</button>`;
+
+  const statusClasse = emAtendimento ? 'status-atendimento' : 'status-pendente';
 
   return `
     <div class="card urg-${row.urgencia} ${isNovo ? 'novo' : ''}" data-proto="${row.proto}">
@@ -548,13 +607,12 @@ function cardHTML(row, isNovo){
         ${row.tipo ? `<div class="info-row"><span class="ico">🏷️</span><span class="lbl">Tipo:</span><span class="val">${escHtml(row.tipo)}</span></div>` : ''}
         ${row.telefone ? `<div class="info-row"><span class="ico">📱</span><span class="lbl">Contato:</span>${wa ? `<a class="val" href="https://wa.me/${wa}" target="_blank">${escHtml(row.telefone)}</a>` : `<span class="val">${escHtml(row.telefone)}</span>`}</div>` : ''}
         <div class="info-row"><span class="ico">🕐</span><span class="lbl">Hora:</span><span class="val">${horaFmt(row.dataObj, row.data)}</span></div>
-        <div class="info-row"><span class="ico">📌</span><span class="lbl">Status:</span><span class="status-pill">${escHtml(row.status)}</span></div>
+        <div class="info-row"><span class="ico">📌</span><span class="lbl">Status:</span><span class="status-pill ${statusClasse}">${escHtml(row.status)}</span></div>
       </div>
 
       <div class="actions">
-        <button class="btn btn-atender" onclick="atualizarStatus('${row.proto}','Em atendimento', this)">🔧 Assumir</button>
-        <button class="btn btn-concluir" onclick="atualizarStatus('${row.proto}','Concluído', this)">✓ Concluir</button>
-        ${wa ? `<a class="btn btn-call" href="https://wa.me/${wa}" target="_blank" title="WhatsApp">💬</a>` : ''}
+        ${botaoAcao}
+        ${wa ? `<a class="btn btn-call" href="https://wa.me/${wa}?text=${waMsg}" target="_blank" title="Enviar confirmação por WhatsApp">💬</a>` : ''}
         ${row.telefone ? `<a class="btn btn-call" href="tel:${row.telefone.replace(/\D/g,'')}" title="Ligar">📞</a>` : ''}
       </div>
     </div>`;
@@ -562,7 +620,7 @@ function cardHTML(row, isNovo){
 
 function render(rows, novosProtos){
   const pendentes = rows
-    .filter(r => r.status === 'Pendente')
+    .filter(r => r.status === 'Pendente' || r.status === 'Em atendimento')
     .sort((a,b) => {
       // Ordem cronológica decrescente: chamado mais recente aparece no topo.
       // Chamados sem data reconhecida ficam por último (não têm como ser ordenados).
@@ -571,7 +629,7 @@ function render(rows, novosProtos){
       return tb - ta;
     });
 
-  document.getElementById('countPendentes').textContent = pendentes.length;
+  document.getElementById('countPendentes').textContent = pendentes.filter(r=>r.status==='Pendente').length;
   document.getElementById('cAlta').textContent  = pendentes.filter(r=>r.urgencia==='Alta').length;
   document.getElementById('cMedia').textContent = pendentes.filter(r=>r.urgencia==='Média').length;
   document.getElementById('cBaixa').textContent = pendentes.filter(r=>r.urgencia==='Baixa').length;
