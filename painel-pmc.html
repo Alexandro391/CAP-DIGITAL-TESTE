@@ -221,6 +221,7 @@
       </div>
     </div>
     <span class="live-dot" id="liveDot"></span>
+    <div class="icon-btn" id="btnWake" title="Manter tela ativa">📱</div>
     <div class="icon-btn" id="btnSom" title="Som">🔊</div>
   </div>
 </div>
@@ -330,6 +331,53 @@ document.getElementById('btnUnlock').addEventListener('click', async () => {
   }
   document.getElementById('unlock').style.display = 'none';
   startPolling();
+  pedirWakeLock();
+});
+
+/* ── WAKE LOCK (mantém a tela acesa enquanto o painel estiver aberto) ──
+   Isso NÃO faz o alerta funcionar com o app fechado — é uma reforço pra
+   quando o app está aberto em segundo plano, evitando que o navegador
+   pause o polling porque a tela apagou/dormiu. Suporte: Chrome/Android
+   bom; iOS Safari é bem mais limitado (pode não suportar). */
+let wakeLock = null;
+let wakeLockDesejado = false;
+
+async function pedirWakeLock(){
+  if(!('wakeLock' in navigator)){
+    document.getElementById('btnWake').classList.add('off');
+    document.getElementById('btnWake').title = 'Tela ativa: não suportado neste navegador';
+    return;
+  }
+  try{
+    wakeLock = await navigator.wakeLock.request('screen');
+    wakeLockDesejado = true;
+    document.getElementById('btnWake').classList.remove('off');
+    document.getElementById('btnWake').title = 'Tela ativa: ligado (toque pra desligar)';
+    wakeLock.addEventListener('release', () => {
+      document.getElementById('btnWake').classList.add('off');
+    });
+  }catch(e){
+    document.getElementById('btnWake').classList.add('off');
+    console.warn('Wake Lock indisponível:', e);
+  }
+}
+
+document.getElementById('btnWake').addEventListener('click', async () => {
+  if(wakeLock && !wakeLock.released){
+    wakeLockDesejado = false;
+    await wakeLock.release();
+    document.getElementById('btnWake').classList.add('off');
+    document.getElementById('btnWake').title = 'Tela ativa: desligado (toque pra ligar)';
+  }else{
+    await pedirWakeLock();
+  }
+});
+
+// Reativa o Wake Lock automaticamente quando o app volta a ficar visível
+document.addEventListener('visibilitychange', async () => {
+  if(document.visibilityState === 'visible' && wakeLockDesejado && (!wakeLock || wakeLock.released)){
+    await pedirWakeLock();
+  }
 });
 
 document.getElementById('btnSom').addEventListener('click', (e) => {
@@ -381,6 +429,18 @@ function parseDataHora(str){
   return new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0), +(m[6]||0));
 }
 
+/* O Google gviz manda datas cruas como texto "Date(ano,mes,dia,h,min,seg)".
+   Usar esse valor (em vez do texto já formatado) evita perder a hora quando
+   a COLUNA da planilha está formatada só como "Data" (sem hora) — nesse caso
+   o texto formatado (c.f) vem sem hora, mas o valor cru (c.v) normalmente
+   ainda carrega o horário completo. */
+function parseGvizDate(raw){
+  if(raw === null || raw === undefined) return null;
+  const m = String(raw).match(/^Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)/);
+  if(!m) return null;
+  return new Date(+m[1], +m[2], +m[3], +(m[4]||0), +(m[5]||0), +(m[6]||0));
+}
+
 async function fetchRows(){
   const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_TAB)}&tq=select%20*&headers=1&_=${Date.now()}`;
   const res = await fetch(url, { cache: 'no-store' });
@@ -402,10 +462,15 @@ async function fetchRows(){
     const proto = protoSheet || makeProto(i, dataStr);
     let status = pending[proto] ? pending[proto].status : normalizeStatus(get(COL_STATUS));
 
+    // Hora: 1) tenta o valor cru do Google (preserva a hora mesmo se a coluna
+    // estiver formatada só como Data), 2) senão tenta o texto já formatado.
+    const cellData = r.c && r.c[COL_DATA];
+    const dataObjCalc = (cellData && parseGvizDate(cellData.v)) || parseDataHora(dataStr);
+
     return {
       proto,
       data: dataStr,
-      dataObj: parseDataHora(dataStr),
+      dataObj: dataObjCalc,
       sala: get(COL_SALA),
       categoria: get(COL_CATEGORIA),
       urgencia: get(COL_URGENCIA) || 'Baixa',
@@ -499,12 +564,11 @@ function render(rows, novosProtos){
   const pendentes = rows
     .filter(r => r.status === 'Pendente')
     .sort((a,b) => {
-      const ordem = { 'Alta':0, 'Média':1, 'Baixa':2 };
-      const ua = ordem[a.urgencia] ?? 3, ub = ordem[b.urgencia] ?? 3;
-      if(ua !== ub) return ua - ub;
-      const ta = a.dataObj ? a.dataObj.getTime() : 0;
-      const tb = b.dataObj ? b.dataObj.getTime() : 0;
-      return ta - tb; // mais antigo primeiro
+      // Ordem cronológica de chegada: quem chegou primeiro aparece primeiro.
+      // Chamados sem data reconhecida ficam por último (não têm como ser ordenados).
+      const ta = a.dataObj ? a.dataObj.getTime() : Infinity;
+      const tb = b.dataObj ? b.dataObj.getTime() : Infinity;
+      return ta - tb;
     });
 
   document.getElementById('countPendentes').textContent = pendentes.length;
