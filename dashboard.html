@@ -418,6 +418,35 @@
       white-space: nowrap;
     }
 
+    .btn-notify {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--neutral-100);
+      border: 1px solid var(--neutral-200);
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--neutral-700);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .btn-notify:hover {
+      background: var(--primary-50);
+      border-color: var(--primary-300);
+      color: var(--primary-700);
+    }
+
+    .btn-notify.ativo {
+      background: var(--green-100);
+      border-color: var(--green-600);
+      color: var(--green-600);
+    }
+
     .btn-export:hover {
       background: var(--primary-50);
       border-color: var(--primary-300);
@@ -1313,6 +1342,10 @@
       <button class="btn-export" onclick="exportCSV()" aria-label="Exportar dados para CSV">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         <span>Exportar CSV</span>
+      </button>
+      <button class="btn-notify" id="btn-notify" onclick="ativarNotificacoesPush()" aria-label="Ativar notificações push">
+        <span id="notify-icon">🔔</span>
+        <span id="notify-label">Ativar notificações</span>
       </button>
       <button class="theme-toggle" id="theme-toggle" aria-label="Alternar tema claro/escuro" title="Alternar tema">
         <span id="theme-icon">🌙</span>
@@ -2267,6 +2300,107 @@
         applyTheme(dark);
       });
     })();
+  </script>
+
+  <!-- ── FIREBASE CLOUD MESSAGING (notificações push) ── -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-messaging.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA_HJfDMyPEYewfbGgQIJ90LmUvYK36OKE",
+      authDomain: "pmc-fmc-push.firebaseapp.com",
+      projectId: "pmc-fmc-push",
+      storageBucket: "pmc-fmc-push.firebasestorage.app",
+      messagingSenderId: "1020191800841",
+      appId: "1:1020191800841:web:ffa56e8854c6c72fad82d8"
+    };
+
+    const VAPID_KEY = "BIvsGrKjODynNiQza6qUvE6F4B4g-ZC-yB_3SXoN4XXYGKnOPbIZQ6S4PYiMPb4f_N9U5Nhy3vjWyb2vpNhmF2c";
+
+    // mesmo Web App do Apps Script que já é usado pra atualizar status
+    const APPS_URL_PUSH =
+      'https://script.google.com/macros/s/AKfycbwnIQ6tBoRjEEkPksVvOYOgurWsa8yUa_Xke8LZF12pjkJQRhGfhJS-3YS-QPRbzqsiXg/exec';
+
+    const app = initializeApp(firebaseConfig);
+    const messaging = getMessaging(app);
+
+    const btnNotify = document.getElementById('btn-notify');
+    const notifyIcon = document.getElementById('notify-icon');
+    const notifyLabel = document.getElementById('notify-label');
+
+    function marcarComoAtivo() {
+      btnNotify.classList.add('ativo');
+      notifyIcon.textContent = '🔔';
+      notifyLabel.textContent = 'Notificações ativas';
+    }
+
+    async function ativarNotificacoesPush() {
+      if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+        showToast('⚠ Este navegador não suporta notificações push.');
+        return;
+      }
+
+      try {
+        notifyLabel.textContent = 'Ativando...';
+
+        const registration = await navigator.serviceWorker.register('/Sistema-de-Atendimento-CAP/firebase-messaging-sw.js');
+
+        const permissao = await Notification.requestPermission();
+        if (permissao !== 'granted') {
+          notifyLabel.textContent = 'Ativar notificações';
+          showToast('⚠ Permissão de notificação negada.');
+          return;
+        }
+
+        const token = await getToken(messaging, {
+          vapidKey: VAPID_KEY,
+          serviceWorkerRegistration: registration
+        });
+
+        if (!token) {
+          notifyLabel.textContent = 'Ativar notificações';
+          showToast('⚠ Não foi possível gerar o token de notificação.');
+          return;
+        }
+
+        const dispositivo = localStorage.getItem('cap_dispositivo_nome') ||
+          (() => {
+            const nome = prompt('Nome deste dispositivo/pessoa (ex: Recepção, João - celular):', '') || 'Dispositivo sem nome';
+            localStorage.setItem('cap_dispositivo_nome', nome);
+            return nome;
+          })();
+
+        await fetch(APPS_URL_PUSH +
+          '?action=salvarTokenPush&token=' + encodeURIComponent(token) +
+          '&dispositivo=' + encodeURIComponent(dispositivo));
+
+        localStorage.setItem('cap_push_token', token);
+        marcarComoAtivo();
+        showToast('✓ Notificações push ativadas para: ' + dispositivo);
+      } catch (erro) {
+        console.error('Erro ao ativar notificações push:', erro);
+        notifyLabel.textContent = 'Ativar notificações';
+        showToast('⚠ Erro ao ativar notificações. Veja o console.');
+      }
+    }
+
+    // notificação recebida com o painel ABERTO em primeiro plano
+    onMessage(messaging, (payload) => {
+      console.log('[Push] Chamado novo (app aberto):', payload);
+      const titulo = payload.notification?.title || 'Novo chamado CAP Digital';
+      const corpo = payload.notification?.body || '';
+      showToast('🔔 ' + titulo + (corpo ? ' — ' + corpo : ''), 6000);
+      // toque de alerta customizado (opcional, ajuste o caminho do arquivo de som)
+      // new Audio('/Sistema-de-Atendimento-CAP/alerta.mp3').play().catch(() => {});
+    });
+
+    // se o navegador já tem permissão concedida de antes, reflete no botão ao carregar
+    if ('Notification' in window && Notification.permission === 'granted' && localStorage.getItem('cap_push_token')) {
+      marcarComoAtivo();
+    }
+
+    window.ativarNotificacoesPush = ativarNotificacoesPush;
   </script>
 </body>
 </html>
