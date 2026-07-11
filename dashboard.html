@@ -2344,7 +2344,7 @@
       try {
         notifyLabel.textContent = 'Ativando...';
 
-        const registration = await navigator.serviceWorker.register('/Sistema-de-Atendimento-CAP/firebase-messaging-sw.js');
+        const registration = await navigator.serviceWorker.register('/CAP-DIGITAL-TESTE/firebase-messaging-sw.js');
 
         const permissao = await Notification.requestPermission();
         if (permissao !== 'granted') {
@@ -2392,7 +2392,7 @@
       const corpo = payload.notification?.body || '';
       showToast('🔔 ' + titulo + (corpo ? ' — ' + corpo : ''), 6000);
       // toque de alerta customizado (opcional, ajuste o caminho do arquivo de som)
-      // new Audio('/Sistema-de-Atendimento-CAP/alerta.mp3').play().catch(() => {});
+      // new Audio('/CAP-DIGITAL-TESTE/alerta.mp3').play().catch(() => {});
     });
 
     // se o navegador já tem permissão concedida de antes, reflete no botão ao carregar
