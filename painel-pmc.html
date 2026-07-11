@@ -1016,5 +1016,82 @@ function forcarAtualizacao(){
   location.reload();
 }
 </script>
+
+<!-- ── FIREBASE CLOUD MESSAGING (notificações push, mesmo com o painel fechado) ── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-messaging.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA_HJfDMyPEYewfbGgQIJ90LmUvYK36OKE",
+    authDomain: "pmc-fmc-push.firebaseapp.com",
+    projectId: "pmc-fmc-push",
+    storageBucket: "pmc-fmc-push.firebasestorage.app",
+    messagingSenderId: "1020191800841",
+    appId: "1:1020191800841:web:ffa56e8854c6c72fad82d8"
+  };
+
+  const VAPID_KEY = "BIvsGrKjODynNiQza6qUvE6F4B4g-ZC-yB_3SXoN4XXYGKnOPbIZQ6S4PYiMPb4f_N9U5Nhy3vjWyb2vpNhmF2c";
+
+  // mesmo Web App do Apps Script já usado pelo dashboard e por este painel
+  const APPS_URL_PUSH =
+    'https://script.google.com/macros/s/AKfycbwnIQ6tBoRjEEkPksVvOYOgurWsa8yUa_Xke8LZF12pjkJQRhGfhJS-3YS-QPRbzqsiXg/exec';
+
+  const app = initializeApp(firebaseConfig);
+  const messaging = getMessaging(app);
+
+  async function ativarPushPMC() {
+    try {
+      if (!('serviceWorker' in navigator)) return;
+
+      // usa o mesmo sw-pmc.js já registrado pelo script principal do painel
+      const registration = await navigator.serviceWorker.ready;
+
+      if (Notification.permission !== 'granted') return; // o botão já pediu permissão antes desta função rodar
+
+      const token = await getToken(messaging, {
+        vapidKey: VAPID_KEY,
+        serviceWorkerRegistration: registration
+      });
+
+      if (!token) return;
+
+      let dispositivo = localStorage.getItem('pmc_dispositivo_nome');
+      if (!dispositivo) {
+        dispositivo = prompt('Nome deste painel/dispositivo (ex: PMC - Sala CAP, PMC - Recepção):', 'PMC - Painel principal') || 'PMC sem nome';
+        localStorage.setItem('pmc_dispositivo_nome', dispositivo);
+      }
+
+      await fetch(APPS_URL_PUSH +
+        '?action=salvarTokenPush&token=' + encodeURIComponent(token) +
+        '&dispositivo=' + encodeURIComponent(dispositivo));
+
+      localStorage.setItem('pmc_push_token', token);
+      console.log('[PMC] Push ativado para:', dispositivo);
+    } catch (erro) {
+      console.warn('[PMC] Erro ao ativar push:', erro);
+      // não bloqueia o resto do painel — o monitoramento por polling continua funcionando normalmente
+    }
+  }
+
+  // dispara junto do clique que já existe no botão "Ativar monitoramento"
+  // (não substitui o handler original, só soma a este)
+  document.getElementById('btnUnlock')?.addEventListener('click', () => {
+    setTimeout(ativarPushPMC, 300); // pequeno atraso pra rodar depois do requestPermission original
+  });
+
+  // se a permissão já tiver sido concedida numa sessão anterior, garante
+  // que o token existe mesmo sem clicar de novo no botão
+  if ('Notification' in window && Notification.permission === 'granted') {
+    navigator.serviceWorker?.ready.then(() => ativarPushPMC());
+  }
+
+  // notificação recebida com o painel ABERTO em primeiro plano
+  onMessage(messaging, (payload) => {
+    console.log('[PMC] Chamado novo via push (painel aberto):', payload);
+    // o polling normal do painel (a cada 8s) já deve pegar esse chamado sozinho;
+    // isto aqui é só um reforço/log, não duplica alerta sonoro.
+  });
+</script>
 </body>
 </html>
