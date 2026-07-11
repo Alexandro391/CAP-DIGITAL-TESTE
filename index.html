@@ -1590,6 +1590,51 @@ input::placeholder, textarea::placeholder {
           <div class="cat-check"></div>
         </label>
         <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Internet/Wi-Fi" onchange="selectCat(this)">
+          <span class="cat-icon">📶</span>
+          <div class="cat-info">
+            <div class="cat-name">Internet/Wi-Fi</div>
+            <div class="cat-desc">Conexão e rede</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Limpeza/Higienização" onchange="selectCat(this)">
+          <span class="cat-icon">🧹</span>
+          <div class="cat-info">
+            <div class="cat-name">Limpeza/Higienização</div>
+            <div class="cat-desc">Conservação do espaço</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Acessibilidade" onchange="selectCat(this)">
+          <span class="cat-icon">♿</span>
+          <div class="cat-info">
+            <div class="cat-name">Acessibilidade</div>
+            <div class="cat-desc">Rampas, elevadores e obstáculos de circulação</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Segurança" onchange="selectCat(this)">
+          <span class="cat-icon">🛡️</span>
+          <div class="cat-info">
+            <div class="cat-name">Segurança</div>
+            <div class="cat-desc">Riscos físicos, equipamentos danificados ou situações perigosas</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card">
+          <input type="checkbox" name="categoria" value="Reserva/Organização de sala" onchange="selectCat(this)">
+          <span class="cat-icon">📅</span>
+          <div class="cat-info">
+            <div class="cat-name">Reserva/Organização de sala</div>
+            <div class="cat-desc">Conflito de sala, disposição ou preparação do espaço</div>
+          </div>
+          <div class="cat-check"></div>
+        </label>
+        <label class="cat-card">
           <input type="checkbox" name="categoria" value="Outro" onchange="selectCat(this)">
           <span class="cat-icon">🔧</span>
           <div class="cat-info">
@@ -1897,6 +1942,15 @@ input::placeholder, textarea::placeholder {
         { nome: 'Lab. de Enfermagem', tipo: 'Laboratório' },
         { nome: 'Sala de Reuniões', tipo: 'Administrativo' },
         { nome: 'Anfiteatro', tipo: 'Anfiteatro' },
+        { nome: 'Corredor do 2º andar', tipo: 'Circulação' },
+        { nome: 'Corredor do 3º andar', tipo: 'Circulação' },
+        { nome: 'Recepção', tipo: 'Administrativo' },
+        { nome: 'Escada', tipo: 'Circulação' },
+        { nome: 'Elevador', tipo: 'Circulação' },
+        { nome: 'Banheiro', tipo: 'Área Comum' },
+        { nome: 'Estacionamento Maior', tipo: 'Área Externa' },
+        { nome: 'Estacionamento Menor', tipo: 'Área Externa' },
+        { nome: 'Auditório da Sociedade', tipo: 'Auditório' },
       ];
 
       const wrap = document.createElement('div');
