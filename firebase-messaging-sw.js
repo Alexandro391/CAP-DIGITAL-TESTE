@@ -24,8 +24,8 @@ messaging.onBackgroundMessage((payload) => {
   const titulo = payload.notification?.title || 'Novo chamado CAP Digital';
   const opcoes = {
     body: payload.notification?.body || 'Um novo chamado foi registrado.',
-    icon: '/Sistema-de-Atendimento-CAP/icon-192.png',
-    badge: '/Sistema-de-Atendimento-CAP/icon-192.png',
+    icon: '/CAP-DIGITAL-TESTE/icon-192.png',
+    badge: '/CAP-DIGITAL-TESTE/icon-192.png',
     vibrate: [200, 100, 200],
     tag: 'cap-digital-chamado', // evita empilhar notificações repetidas do mesmo tipo
     data: payload.data || {}
@@ -45,7 +45,7 @@ self.addEventListener('notificationclick', (event) => {
         }
       }
       if (clients.openWindow) {
-        return clients.openWindow('/dashboard.html');
+        return clients.openWindow('/CAP-DIGITAL-TESTE/dashboard.html');
       }
     })
   );
