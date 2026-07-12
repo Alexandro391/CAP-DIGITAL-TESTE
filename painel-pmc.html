@@ -665,7 +665,52 @@
       background:rgba(22,163,74,.10);
       border-color:rgba(22,163,74,.28);
     }
+
+    /* Botão de modo escuro é exclusivo do desktop/TV */
+    #btnDark{display:none;}
   }
+
+  /* ═══════════════════════════════════════════════════════════
+     AJUSTE 4 — MODO ESCURO (botão exclusivo desktop/TV)
+     Ativado via classe body.dark-mode; nada mais foi alterado.
+     ═══════════════════════════════════════════════════════════ */
+  #btnDark{display:none;}
+  @media (min-width:900px){
+    #btnDark{display:flex;}
+  }
+
+  body.dark-mode{
+    background:
+      radial-gradient(circle at 10% 0%, rgba(20,236,223,.10), transparent 32%),
+      radial-gradient(circle at 90% 14%, rgba(20,236,223,.08), transparent 26%),
+      linear-gradient(180deg,#0a1414 0%,#0c1a1a 46%,#0a1717 100%);
+    color:#e7f3f1;
+  }
+  body.dark-mode .card{
+    background:#0f2422;
+    border-color:rgba(20,236,223,.16);
+    box-shadow:0 1px 2px rgba(0,0,0,.30), 0 12px 34px rgba(0,0,0,.35);
+  }
+  body.dark-mode .card:hover{
+    box-shadow:0 4px 14px rgba(0,0,0,.35), 0 20px 50px rgba(20,236,223,.16);
+    border-color:rgba(20,236,223,.28);
+  }
+  body.dark-mode .card-top{border-color:rgba(255,255,255,.08);}
+  body.dark-mode .sala{color:#eafffb;}
+  body.dark-mode .categoria{color:#b7c9c6;}
+  body.dark-mode .info-rows{background:#0b1e1c;border-color:rgba(255,255,255,.07);}
+  body.dark-mode .info-row{color:#c7d8d5;border-color:rgba(255,255,255,.07);}
+  body.dark-mode .info-row .lbl{color:#eafffb;}
+  body.dark-mode .info-row .val{color:#9db3af;}
+  body.dark-mode .tempo{color:#93a6a3;}
+  body.dark-mode .proto{background:rgba(20,236,223,.08);border-color:rgba(20,236,223,.22);color:#7fe8dd;}
+  body.dark-mode .btn-call{background:rgba(20,236,223,.10);border-color:rgba(20,236,223,.25);color:#8ff5ec;}
+  body.dark-mode .empty-icon{background:#132a27;}
+  body.dark-mode .empty-title{color:#eafffb;}
+  body.dark-mode .empty-sub{color:#93a6a3;}
+  body.dark-mode .footer{color:#93a6a3;border-color:rgba(255,255,255,.08);}
+  body.dark-mode .footer a{color:#7fe8dd;}
+  body.dark-mode #toast{background:rgba(11,17,32,.96);}
 
 </style>
 </head>
@@ -698,6 +743,7 @@
     <div class="icon-btn" id="btnFull" title="Tela cheia (desktop/TV)">⛶</div>
     <div class="icon-btn" id="btnWake" title="Manter tela ativa">📱</div>
     <div class="icon-btn" id="btnSom" title="Som">🔊</div>
+    <div class="icon-btn" id="btnDark" title="Modo escuro (desktop/TV)">🌙</div>
   </div>
 </div>
 
@@ -883,6 +929,24 @@ document.getElementById('btnSom').addEventListener('click', (e) => {
   soundOn = !soundOn;
   e.currentTarget.textContent = soundOn ? '🔊' : '🔇';
   e.currentTarget.classList.toggle('off', !soundOn);
+});
+
+/* ── MODO ESCURO (desktop/TV) — só troca classe visual, não mexe em mais nada ── */
+const DARK_MODE_KEY = 'pmc_dark_mode';
+function aplicarDarkMode(ativo){
+  document.body.classList.toggle('dark-mode', ativo);
+  const btn = document.getElementById('btnDark');
+  if(btn) btn.textContent = ativo ? '☀️' : '🌙';
+}
+(function initDarkMode(){
+  let salvo = false;
+  try{ salvo = localStorage.getItem(DARK_MODE_KEY) === '1'; }catch(e){}
+  aplicarDarkMode(salvo);
+})();
+document.getElementById('btnDark')?.addEventListener('click', () => {
+  const ativo = !document.body.classList.contains('dark-mode');
+  aplicarDarkMode(ativo);
+  try{ localStorage.setItem(DARK_MODE_KEY, ativo ? '1' : '0'); }catch(e){}
 });
 
 /* ── PENDÊNCIA LOCAL (após clicar Atender/Concluir, ignora status antigo por alguns segundos) ── */
