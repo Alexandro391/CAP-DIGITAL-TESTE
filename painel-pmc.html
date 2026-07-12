@@ -621,6 +621,52 @@
     box-shadow:0 12px 26px rgba(11,43,42,.42);
   }
 
+  /* ═══════════════════════════════════════════════════════════
+     AJUSTE 3 — SOMENTE CELULAR: reduz um pouco fonte/ícones
+     (estava espremido) + ícone de telefone verde. Desktop/TV
+     não são afetados por este bloco.
+     ═══════════════════════════════════════════════════════════ */
+  @media (max-width:560px){
+    .brand-title{font-size:14px;}
+    .brand-sub{font-size:10.5px;}
+    .icon-btn{width:38px;height:38px;border-radius:11px;font-size:16px;}
+    .brand-mark{width:38px;height:38px;border-radius:11px;}
+    .brand-mark svg{width:20px;height:20px;}
+
+    .summary-count{font-size:40px;}
+    .stat.secundario .summary-count{font-size:29px;}
+    .summary-label{font-size:10.5px;}
+    .chip{font-size:12px;padding:6px 11px;}
+
+    .card{padding:16px 16px 14px;}
+    .card-top{margin-bottom:10px;padding-bottom:9px;}
+    .proto{font-size:12px;padding:4px 10px;}
+    .tempo{font-size:12px;}
+    .sala-row{margin-bottom:7px;gap:8px;}
+    .sala{font-size:20px;}
+    .badge-urg{font-size:10.5px;padding:4px 9px;}
+    .categoria{font-size:13.5px;}
+
+    .info-rows{padding:5px 12px;}
+    .info-row{font-size:13.5px;padding:7px 0;gap:7px;}
+    .info-row .ico{font-size:14px;width:18px;}
+    .info-row .lbl{font-size:13px;min-width:82px;}
+    .status-pill{font-size:10.5px;padding:4px 9px;}
+
+    .actions{gap:8px;}
+    .btn{font-size:14px;min-height:46px;border-radius:12px;}
+    .btn-feito{font-size:14px;min-height:46px;}
+    .btn-call{width:46px;font-size:17px;}
+    .btn-excluir{font-size:11px;margin-top:8px;}
+
+    /* Ícone de telefone (ligar) em verde — só no celular */
+    a.btn-call[href^="tel:"]{
+      color:#16a34a;
+      background:rgba(22,163,74,.10);
+      border-color:rgba(22,163,74,.28);
+    }
+  }
+
 </style>
 </head>
 <body>
