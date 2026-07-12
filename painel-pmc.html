@@ -117,7 +117,6 @@
   }
   .chip .dot{width:7px;height:7px;border-radius:50%;}
   .chip.alta .dot{background:#f87171;} .chip.media .dot{background:#fbbf24;} .chip.baixa .dot{background:#5bb8b0;}
-  .chip.atendimento .dot{background:var(--primary-600);}
 
   /* ── LISTA ── */
   .lista{max-width:640px;margin:18px auto 0;padding:0 18px;display:flex;flex-direction:column;gap:12px;}
@@ -770,7 +769,6 @@
       <span class="chip alta"><span class="dot"></span> Alta: <span id="cAlta">0</span></span>
       <span class="chip media"><span class="dot"></span> Média: <span id="cMedia">0</span></span>
       <span class="chip baixa"><span class="dot"></span> Baixa: <span id="cBaixa">0</span></span>
-      <span class="chip atendimento"><span class="dot"></span> Em atendimento: <span id="cAtendimento">0</span></span>
     </div>
   </div>
 </div>
@@ -1201,7 +1199,6 @@ function render(rows, novosProtos){
   document.getElementById('countPendentes').textContent = pendentes.filter(r=>r.status==='Pendente').length;
   const emAtendimentoCount = pendentes.filter(r=>r.status==='Em atendimento').length;
   document.getElementById('countEmAtendimento').textContent = emAtendimentoCount;
-  document.getElementById('cAtendimento').textContent = emAtendimentoCount;
   document.getElementById('cAlta').textContent  = ativos.filter(r=>r.urgencia==='Alta').length;
   document.getElementById('cMedia').textContent = ativos.filter(r=>r.urgencia==='Média').length;
   document.getElementById('cBaixa').textContent = ativos.filter(r=>r.urgencia==='Baixa').length;
