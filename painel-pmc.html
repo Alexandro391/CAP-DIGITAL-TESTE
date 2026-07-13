@@ -810,24 +810,79 @@ let soundOn  = true;
 let firstRun = true;
 let localPending = {}; // { protocolo: {status, until} }
 
-/* ── ÁUDIO (beep sintetizado, sem depender de arquivo mp3) ── */
-function beep(urgencia){
-  if(!soundOn || !audioCtx) return;
-  const pattern = urgencia === 'Alta' ? [880,0,660,0,880,0,660] : [660,0,880];
-  let t = audioCtx.currentTime;
-  pattern.forEach((freq,i)=>{
+/* ── ÁUDIO (sintetizado, sem depender de arquivo mp3) ──
+   Troque SOM_ESTILO pra mudar o som de todos os alertas:
+   'campainha' → ding-dong tipo senha de banco/elevador (padrão)
+   'sirene'    → tom contínuo subindo e descendo, ~3s
+   'classico'  → o beep curto de antes, só que repetido pra durar mais
+*/
+const SOM_ESTILO = 'campainha';
+
+function tocarNota(freq, inicio, duracao, volume){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.0001, inicio);
+  gain.gain.exponentialRampToValueAtTime(volume || 0.35, inicio + 0.03);
+  gain.gain.exponentialRampToValueAtTime(0.0001, inicio + duracao);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(inicio);
+  osc.stop(inicio + duracao + 0.03);
+}
+
+// "Campainha" — ding-dong clássico (intervalo Si/Fá#), repete por ~3s.
+// Urgência Alta insiste mais vezes (mais ciclos) que Média/Baixa.
+function tocarCampainha(t0, urgencia){
+  const alto = 988, baixo = 740;
+  const ciclos = urgencia === 'Alta' ? 4 : 2;
+  let t = t0;
+  for(let i = 0; i < ciclos; i++){
+    tocarNota(alto, t, 0.5, 0.32);
+    tocarNota(baixo, t + 0.45, 0.6, 0.32);
+    t += 1.05;
+  }
+}
+
+// "Sirene" — tom contínuo subindo/descendo por ~3s (mais insistente)
+function tocarSirene(t0, urgencia){
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  const duracao = urgencia === 'Alta' ? 3.2 : 2.2;
+  const min = 520, max = urgencia === 'Alta' ? 1100 : 900;
+  const ciclo = 0.6;
+  osc.frequency.setValueAtTime(min, t0);
+  for(let t = t0; t < t0 + duracao; t += ciclo){
+    osc.frequency.linearRampToValueAtTime(max, t + ciclo / 2);
+    osc.frequency.linearRampToValueAtTime(min, t + ciclo);
+  }
+  gain.gain.setValueAtTime(0.28, t0);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t0 + duracao);
+  osc.connect(gain).connect(audioCtx.destination);
+  osc.start(t0);
+  osc.stop(t0 + duracao + 0.05);
+}
+
+// "Clássico" — o beep original, repetido pra chegar perto de 3s
+function tocarClassico(t0, urgencia){
+  const pattern = urgencia === 'Alta'
+    ? [880,0,660,0,880,0,660,0,880,0,660]
+    : [660,0,880,0,660,0,880];
+  let t = t0;
+  pattern.forEach((freq) => {
     if(freq === 0){ t += 0.09; return; }
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.0001, t);
-    gain.gain.exponentialRampToValueAtTime(0.35, t + 0.02);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
-    osc.connect(gain).connect(audioCtx.destination);
-    osc.start(t); osc.stop(t + 0.24);
+    tocarNota(freq, t, 0.22, 0.35);
     t += 0.22;
   });
+}
+
+function beep(urgencia){
+  if(!soundOn || !audioCtx) return;
+  const t0 = audioCtx.currentTime;
+  if(SOM_ESTILO === 'sirene') tocarSirene(t0, urgencia);
+  else if(SOM_ESTILO === 'classico') tocarClassico(t0, urgencia);
+  else tocarCampainha(t0, urgencia);
 }
 
 function vibrar(urgencia){
