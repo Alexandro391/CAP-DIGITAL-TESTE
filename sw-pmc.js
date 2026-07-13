@@ -5,7 +5,7 @@
    são cacheados aqui — sempre buscados direto da rede, senão
    o painel mostraria chamados desatualizados.
    ═══════════════════════════════════════════════════════════ */
-const CACHE_VERSION = '2026-07-11-5'; // troque essa data ao publicar uma nova versão do painel
+const CACHE_VERSION = '2026-07-12-6'; // troque essa data ao publicar uma nova versão do painel
 const CACHE_NAME = 'pmc-shell-' + CACHE_VERSION;
 const APP_SHELL = [
   './painel-pmc.html',
@@ -30,11 +30,16 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
-// Notificação recebida com o painel FECHADO ou em segundo plano
+/* Notificação recebida com o painel FECHADO ou em segundo plano.
+   IMPORTANTE: o Apps Script agora manda a mensagem só em "data"
+   (sem o campo "notification"). Isso é o que garante que ESTE
+   handler seja chamado — se "notification" viesse preenchido, o
+   navegador exibiria a notificação sozinho, sem passar por aqui,
+   ignorando vibrate/tag/requireInteraction abaixo. */
 messaging.onBackgroundMessage((payload) => {
-  const titulo = payload.notification?.title || 'Novo chamado CAP Digital';
+  const titulo = payload.data?.title || 'Novo chamado CAP Digital';
   const opcoes = {
-    body: payload.notification?.body || 'Um novo chamado foi registrado.',
+    body: payload.data?.body || 'Um novo chamado foi registrado.',
     icon: './icon-192.png',
     badge: './icon-192.png',
     vibrate: [200, 100, 200, 100, 200],
