@@ -843,7 +843,12 @@ function atualizarStatus(proto, novoStatus, btnEl){
   pending[proto] = { status: novoStatus, until: Date.now() + 15000 };
   saveLocalPending(pending);
 
-  fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(novoStatus))
+  // no-cors: o Apps Script (exec) redireciona internamente e nem sempre repassa
+  // o header Access-Control-Allow-Origin nesse salto, o que o navegador barra
+  // como erro de CORS mesmo quando a atualização é executada com sucesso no
+  // servidor. Como não precisamos ler o corpo da resposta aqui (o próximo
+  // ciclo de 8s já confirma via gviz), disparamos em modo opaco.
+  fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(novoStatus), { mode: 'no-cors', cache: 'no-store' })
     .then(() => showToast('✓ ' + proto + ' → ' + novoStatus))
     .catch(() => showToast('⚠️ Falha ao atualizar ' + proto + ' (tentando novamente no próximo ciclo)'))
     .finally(() => { tick(); });
@@ -1117,7 +1122,8 @@ function forcarAtualizacao(){
 
       await fetch(APPS_URL_PUSH +
         '?action=salvarTokenPush&token=' + encodeURIComponent(token) +
-        '&dispositivo=' + encodeURIComponent(dispositivo));
+        '&dispositivo=' + encodeURIComponent(dispositivo),
+        { mode: 'no-cors', cache: 'no-store' });
 
       localStorage.setItem('pmc_push_token', token);
       console.log('[PMC] Push ativado para:', dispositivo);
