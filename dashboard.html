@@ -1281,6 +1281,79 @@
   </style>
 </head>
 <body>
+<!-- ===== CAP Digital — Bloqueio de acesso (login obrigatório, Firebase Auth) ===== -->
+<style>
+  #cap-login-overlay{position:fixed;inset:0;z-index:999999;background:#0b1220;display:flex;align-items:center;justify-content:center;font-family:system-ui,-apple-system,sans-serif;}
+  #cap-login-overlay.cap-oculto{display:none;}
+  #cap-login-box{background:#131c2e;padding:32px 28px;border-radius:14px;width:min(320px,90vw);box-shadow:0 10px 40px rgba(0,0,0,.5);}
+  #cap-login-box h2{color:#e6ecf5;margin:0 0 18px;font-size:18px;text-align:center;}
+  #cap-login-box input{width:100%;box-sizing:border-box;padding:10px 12px;margin-bottom:10px;border-radius:8px;border:1px solid #2a3752;background:#0e1626;color:#e6ecf5;font-size:14px;}
+  #cap-login-box button{width:100%;padding:10px;border:0;border-radius:8px;background:#2f7bf6;color:#fff;font-weight:600;cursor:pointer;font-size:14px;}
+  #cap-login-box button:disabled{opacity:.6;cursor:default;}
+  #cap-login-erro{color:#ff8080;font-size:13px;min-height:16px;margin-top:8px;text-align:center;}
+  body.cap-travado{visibility:hidden;}
+  #cap-login-overlay{visibility:visible;}
+</style>
+<div id="cap-login-overlay">
+  <div id="cap-login-box">
+    <h2>Acesso restrito — CAP Digital</h2>
+    <input type="email" id="cap-login-email" placeholder="E-mail" autocomplete="username">
+    <input type="password" id="cap-login-senha" placeholder="Senha" autocomplete="current-password">
+    <button id="cap-login-botao">Entrar</button>
+    <div id="cap-login-erro"></div>
+  </div>
+</div>
+<script>document.body.classList.add('cap-travado');</script>
+<script type="module">
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+
+  const capFirebaseConfig = {
+    apiKey: "AIzaSyA_HJfDMyPEYewfbGgQIJ90LmUvYK36OKE",
+    authDomain: "pmc-fmc-push.firebaseapp.com",
+    projectId: "pmc-fmc-push",
+    storageBucket: "pmc-fmc-push.firebasestorage.app",
+    messagingSenderId: "1020191800841",
+    appId: "1:1020191800841:web:ffa56e8854c6c72fad82d8"
+  };
+  const capApp = getApps().length ? getApps()[0] : initializeApp(capFirebaseConfig);
+  const capAuth = getAuth(capApp);
+  setPersistence(capAuth, browserLocalPersistence).catch(() => {});
+  window.capAuth = capAuth;
+  window.capLogout = () => signOut(capAuth);
+
+  const overlay = document.getElementById('cap-login-overlay');
+  const inputEmail = document.getElementById('cap-login-email');
+  const inputSenha = document.getElementById('cap-login-senha');
+  const botao = document.getElementById('cap-login-botao');
+  const erro = document.getElementById('cap-login-erro');
+
+  onAuthStateChanged(capAuth, (user) => {
+    if (user) {
+      overlay.classList.add('cap-oculto');
+      document.body.classList.remove('cap-travado');
+    } else {
+      document.body.classList.add('cap-travado');
+      overlay.classList.remove('cap-oculto');
+    }
+  });
+
+  async function tentarLogin() {
+    erro.textContent = '';
+    botao.disabled = true;
+    try {
+      await signInWithEmailAndPassword(capAuth, inputEmail.value.trim(), inputSenha.value);
+    } catch (e) {
+      erro.textContent = 'E-mail ou senha inválidos.';
+    } finally {
+      botao.disabled = false;
+    }
+  }
+  botao.addEventListener('click', tentarLogin);
+  inputSenha.addEventListener('keydown', (e) => { if (e.key === 'Enter') tentarLogin(); });
+</script>
+<!-- ===== fim bloqueio ===== -->
+
 
   <!-- ── PIN OVERLAY ── -->
   <div id="pin-overlay" role="dialog" aria-modal="true" aria-label="Autenticação por PIN">
@@ -1712,7 +1785,8 @@
 
       const APPS_URL =
         'https://script.google.com/macros/s/AKfycbwnIQ6tBoRjEEkPksVvOYOgurWsa8yUa_Xke8LZF12pjkJQRhGfhJS-3YS-QPRbzqsiXg/exec';
-      fetch(APPS_URL + '?action=updateStatus&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(val))
+      const ADMIN_ORIGIN_KEY = 'zkmbC_HuneW_6kl7iUGE2n43Fx6YX5hRJKgYudxZ8ak';
+      fetch(APPS_URL + '?action=updateStatus&key=' + encodeURIComponent(ADMIN_ORIGIN_KEY) + '&protocolo=' + encodeURIComponent(proto) + '&status=' + encodeURIComponent(val))
         .then(() => {
           setTimeout(() => clearPending(proto), 5000);
           if (numWa && val !== 'Pendente') {
@@ -2372,7 +2446,7 @@
           })();
 
         await fetch(APPS_URL_PUSH +
-          '?action=salvarTokenPush&token=' + encodeURIComponent(token) +
+          '?action=salvarTokenPush&key=' + encodeURIComponent(ADMIN_ORIGIN_KEY) + '&token=' + encodeURIComponent(token) +
           '&dispositivo=' + encodeURIComponent(dispositivo));
 
         localStorage.setItem('cap_push_token', token);
